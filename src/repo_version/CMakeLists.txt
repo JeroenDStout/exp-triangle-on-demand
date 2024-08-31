@@ -1,16 +1,16 @@
-init_directory(version)
+init_directory(repo_version)
 
 # Define the Version project
-init_project(version "meta")
+init_project(repo_version "meta")
 
 # Sources static
-setup_project_source(version "version"
+setup_project_source(repo_version "version"
   src:
     git_version.cpp
   include:
     git_version.h GENERATED
 )
-setup_project_source(version "script"
+setup_project_source(repo_version "script"
   script:
     ../../touch
     generate_git_version.py
@@ -18,12 +18,12 @@ setup_project_source(version "script"
 )
 
 # Target
-configure_project_static_lib(version)
-configure_cxx_target(version)
+configure_project_static_lib(repo_version)
+configure_cxx_target(repo_version)
 
 # Custom
 add_custom_command(
-  COMMENT			"Generate version file"
+  COMMENT			"Generate git version file"
   OUTPUT    		${abs_gen_include}/git_version.h
                     ${abs_gen_script}/git_version.txt
   COMMAND   		${Python3_EXECUTABLE}
