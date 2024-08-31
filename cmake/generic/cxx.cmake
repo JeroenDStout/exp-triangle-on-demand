@@ -1,6 +1,3 @@
-message(STATUS "Setup CXX")
-  
-#  
 function(configure_cxx_target project_ref)
   message(STATUS "Configure CXX Target ${project_ref}")
   
@@ -40,13 +37,5 @@ function(configure_cxx_target project_ref)
     
     #Disable RTTI 
     add_compile_options(-fno-rtti)
-  endif()
-  
-  # Projects	
-  set_property(TARGET ${project_ref} PROPERTY VS_DEBUGGER_WORKING_DIRECTORY "${CMAKE_BINARY_DIR}/bin/$(Configuration)")
-  
-  if(MSVC)
-    set_target_properties(${project_ref}          PROPERTIES COMPILE_PDB_NAME               "$(ProjectName)")
-    set_target_properties(${PDB_OUTPUT_DIRECTORY} PROPERTIES CMAKE_RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/bin")
   endif()
 endfunction()
