@@ -205,7 +205,7 @@ function(configure_project_executable project_ref)
   print_all_project_sources()
   
   add_executable(${project_ref} ${${project_source_list}})
-  target_include_directories(${project_ref} PRIVATE ${project_root_dir}/include ${CMAKE_BINARY_DIR}/gen/include)
+  target_include_directories(${project_ref} PRIVATE ${cmake_root_dir}/include ${CMAKE_BINARY_DIR}/gen/include)
   
   add_custom_command(
 	TARGET     ${project_ref}
@@ -215,7 +215,7 @@ function(configure_project_executable project_ref)
   )
   
   set_target_properties(${project_ref} PROPERTIES FOLDER ${project_folder})
-  install(TARGETS ${project_ref} DESTINATION ${project_root_dir}/bin)
+  install(TARGETS ${project_ref} DESTINATION ${cmake_root_dir}/bin)
 endfunction()
 
 
@@ -227,8 +227,8 @@ function(configure_project_static_lib project_ref)
   print_all_project_sources()
   
   add_library(${project_ref} STATIC ${${project_source_list}})
-  target_include_directories(${project_ref} PRIVATE ${project_root_dir}/include ${CMAKE_BINARY_DIR}/gen/include)
-  install(TARGETS ${project_ref} DESTINATION ${project_root_dir}/bin)
+  target_include_directories(${project_ref} PRIVATE ${cmake_root_dir}/include ${CMAKE_BINARY_DIR}/gen/include)
+  install(TARGETS ${project_ref} DESTINATION ${cmake_root_dir}/bin)
   set_target_properties(${project_ref} PROPERTIES FOLDER ${project_folder})
 endfunction()
 
@@ -241,8 +241,8 @@ function(configure_project_script project_ref)
   print_all_project_sources()
   
   add_library(${project_ref} STATIC ${${project_source_list}})
-  target_include_directories(${project_ref} PRIVATE ${project_root_dir}/include ${CMAKE_BINARY_DIR}/gen/include)
-  install(TARGETS ${project_ref} DESTINATION ${project_root_dir}/bin)
+  target_include_directories(${project_ref} PRIVATE ${cmake_root_dir}/include ${CMAKE_BINARY_DIR}/gen/include)
+  install(TARGETS ${project_ref} DESTINATION ${cmake_root_dir}/bin)
   set_target_properties(${project_ref} PROPERTIES FOLDER ${project_folder})
   set_target_properties(${project_ref} PROPERTIES LINKER_LANGUAGE CXX)
 endfunction()
@@ -267,8 +267,8 @@ function(sources_get_canonprint_filepath in_path out_path)
   elseif (${in_path} MATCHES "${abs_gen_script}*")
     STRING(REGEX REPLACE "^${abs_gen_script}/" "script/-/" tmp_path "${in_path}*")
   elseif()
-    file(RELATIVE_PATH rel ${project_root_dir} ${in_path})
-    STRING(REGEX REPLACE "^${project_root_dir}/" "      ? " tmp_path "${rel}")
+    file(RELATIVE_PATH rel ${cmake_root_dir} ${in_path})
+    STRING(REGEX REPLACE "^${cmake_root_dir}/" "      ? " tmp_path "${rel}")
   endif()
   set(${out_path} ${tmp_path} PARENT_SCOPE)
 endfunction()
