@@ -20,6 +20,7 @@ setup_project_source(repo_version "script"
 # Target
 configure_project_static_lib(repo_version)
 configure_cxx_target(repo_version)
+configure_target_outputs(repo_version)
 
 # Custom
 add_custom_command(

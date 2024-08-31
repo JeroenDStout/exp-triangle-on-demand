@@ -26,6 +26,8 @@ include(cmake/generic/sources.cmake)
 include(cmake/generic/publish.cmake)
 
 # Subprojects
+add_subdirectory(src/tod_core)
+add_subdirectory(src/tod_live)
 add_subdirectory(src/repo_version)
 
 # Publication
