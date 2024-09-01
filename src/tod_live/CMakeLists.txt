@@ -21,3 +21,4 @@ configure_sdl_target(tod_live)
 configure_publish_exec(tod_live)
 	
 add_dependencies(tod_live tod_core repo_version)
+target_link_libraries(tod_live tod_core)

@@ -4,14 +4,31 @@ init_directory(tod_core)
 init_project(tod_core "triangle_on_demand")
 
 # Sources
-setup_project_source(tod_core "core"
+setup_project_source(tod_core "core/data"
   src:
-    triangle_server.cpp
+    data_gpu.cpp
   include:
-    triangle_server.h
+    data_gpu.h
 )
-setup_project_source(tod_core "include"
+setup_project_source(tod_core "core/policy"
+  src:
+    poli_gpu.cpp
   include:
+    poli_gpu.h
+)
+setup_project_source(tod_core "core/proc"
+  src:
+    proc_gpu.cpp
+    proc_tod.cpp
+  include:
+    proc_gpu.h
+    proc_tod.h
+)
+setup_project_source(tod_core "third_party"
+  src:
+    imp_shadercross.cpp
+  include:
+    inc_shadercross.h
     inc_sdl.h
 )
 

@@ -1,32 +1,55 @@
 // Test test test
 
 #include <iostream>
+#include <random>
 
-#include "version/git_version.h"
+#include "repo_version/git_version.h"
+
+#include "tod_core/data_gpu.h"
+#include "tod_core/poli_gpu.h"
+#include "tod_core/proc_gpu.h"
+#include "tod_core/proc_tod.h"
+
 #include "tod_core/inc_sdl.h"
 
-int main(int argc, char* args[])
+int main(int, char*[])
 {
-    SDL_Window* sdl_window;
+    std::cout
+      << std::endl
+      << "          * * * * * * * ** * * * * * * " << std::endl
+      << "         * * * Triangle on Demand * * * " << std::endl
+      << "          * * * * * * * ** * * * * * * " << std::endl
+      << std::endl
+      << gaos::version::get_git_essential_version() << std::endl
+      << gaos::version::get_compile_stamp() << std::endl
+      << std::endl
+      << gaos::version::get_git_history() << std::endl
+      << std::endl;
 
-    // Initialize SDL
-    if (auto result = SDL_Init( SDL_INIT_VIDEO); result != SDL_TRUE)
+    SDL_Init(SDL_INIT_VIDEO);
+
+    tod::proc_gpu         proc_gpu{};
+    tod::proc_tod         proc_tod{};
+
+    tod::poli_gpu_context poli_gpu_context{};
+    tod::data_gpu_context gpu_context{};
+
+    proc_gpu.create_gpu_context(gpu_context, poli_gpu_context);
+
+    // Random clears
     {
-        std::cout << "SDL could not initialize! SDL_Error:" << SDL_GetError() << std::endl;
-        return -1;
+        std::random_device rd;
+        std::mt19937 e2(rd());
+        std::uniform_real_distribution<float> dist(0.f, 1.f);
+
+        for (int i = 0; i < 10; ++i)
+        {
+            proc_tod.submit_pass_clear_window(gpu_context, { dist(e2), dist(e2), dist(e2), 1.f });
+            SDL_Delay(300);
+        }
     }
 
-    sdl_window = SDL_CreateWindow("SDL Example", 1024, 768, 0x0);
-    if (!sdl_window)
-    {
-        std::cout << "SDL could not create a window! SDL_Error:" << SDL_GetError() << std::endl;
-        return -1;
-    }
-
-    SDL_Delay(3000);
-
-    SDL_DestroyWindow(sdl_window);
-    SDL_Quit();
+    proc_gpu.destroy_gpu_context(gpu_context);
 
     return 0;
 }
