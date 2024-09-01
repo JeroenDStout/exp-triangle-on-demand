@@ -28,6 +28,7 @@ setup_project_source(tod_core "third_party"
   src:
     imp_shadercross.cpp
   include:
+    inc_eigen.h
     inc_shadercross.h
     inc_sdl.h
 )
