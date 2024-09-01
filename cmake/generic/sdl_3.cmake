@@ -30,10 +30,10 @@ add_library(sdl_gpu_shadercross INTERFACE ${sdl_gpu_shadercross_source_h})
 set_target_properties(sdl_gpu_shadercross PROPERTIES FOLDER "dependencies/sdl_3")
     
 # Config
-function(configure_sdl_target project_ref)
-  message(STATUS "Configure SDL Target ${project_ref}")
+function(configure_project_sdl project_ref)
+  message(STATUS "Configure SDL ${project_ref}")
   
   include_directories(${sdl_3_SOURCE_DIR}/include)
   include_directories(${sdl_gpu_shadercross_SOURCE_DIR}/..)
-  target_link_libraries(${project_ref} SDL3-shared)
+  target_link_libraries(${project_ref} PRIVATE SDL3-shared)
 endfunction()

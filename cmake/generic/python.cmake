@@ -2,7 +2,7 @@ message(STATUS "Setup Python3")
 
 include(ExternalProject)
 
-find_package(Python3 COMPONENTS Interpreter)
+find_package(Python 3.8 COMPONENTS Interpreter Development.Module REQUIRED)
 
 #
 # Packages
