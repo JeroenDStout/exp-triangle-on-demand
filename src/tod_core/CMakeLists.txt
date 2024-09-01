@@ -36,7 +36,7 @@ setup_project_source(tod_core "third_party"
 configure_project_static_lib(tod_core)
 configure_cxx_target(tod_core)
 configure_target_outputs(tod_core)
-configure_sdl_target(tod_core)
+configure_project_sdl(tod_core)
 configure_publish_exec(tod_core)
 	
 add_dependencies(tod_core repo_version)

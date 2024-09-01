@@ -2,14 +2,11 @@ import subprocess
 import sys
 
 packages_to_install = [
-  # [ 'antlr4', [
-  #   [ sys.executable, "-m", "pip", "install", "antlr4-tools" ],
-  #   [ "echo", "yes", "|", "antlr4" ],
-  #   [ sys.executable, "-m", "pip", "install", "antlr4-python3-runtime" ]
-  # ]],
-  # [ 'overrides', [
-  #   [ sys.executable, "-m", "pip", "install", "overrides" ],
-  # ]]
+  [ 'jupyterlab', [
+    [ sys.executable, "-m", "pip", "install", "jupyterlab" ],
+    [ sys.executable, "-m", "pip", "install", "jupytext" ],
+    [ sys.executable, "-m", "pip", "install", "ipywidgets" ],
+  ]],
 ]
 install_all         = False
 
