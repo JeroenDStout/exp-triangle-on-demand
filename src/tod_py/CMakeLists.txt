@@ -9,9 +9,18 @@ setup_project_source(tod_py "nanobind"
     nanobind.cpp
     nanobind_meta.cpp
 )
+setup_project_source(tod_py "core"
+  src:
+    data_tod_py.cpp
+    proc_tod_py.cpp
+  include:
+    data_tod_py.h
+    proc_tod_py.h
+)
 setup_project_source(tod_py "third_party"
   include:
     inc_nanobind.h
+    inc_nanobind_stl.h
 )
 
 # Target

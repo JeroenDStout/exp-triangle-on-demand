@@ -3,6 +3,8 @@
 /*
  *  ...
  */
+
+ #include <string>
  
 enum SDL_GPUDriver : int;
 
@@ -19,7 +21,10 @@ namespace tod {
         create_gpu_context_result create_gpu_context(data_gpu_context& out, const poli_gpu_context&) const;
 
         void destroy_gpu_context(data_gpu_context& inout) const;
+        
+        std::string create_debug_string(data_gpu_context& context) const;
 
+      protected:
         const char* to_string(SDL_GPUDriver) const;
     };
 

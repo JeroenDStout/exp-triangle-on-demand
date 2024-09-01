@@ -3,6 +3,7 @@
 #include "tod_core/poli_gpu.h"
 
 #include <iostream>
+#include <sstream>
 
 #include "tod_core/inc_sdl.h"
 #include "tod_core/inc_shadercross.h"
@@ -51,6 +52,16 @@ void proc_gpu::destroy_gpu_context(data_gpu_context& inout) const
     
 	SDL_DestroyGPUDevice(inout.device);
     inout.device = nullptr;
+}
+
+std::string proc_gpu::create_debug_string(data_gpu_context& context) const
+{
+    std::stringstream ss;
+    ss << "context {";
+    ss << " gpu_driver: " << to_string(SDL_GetGPUDriver(context.device));
+    ss << " }";
+
+    return ss.str();
 }
 
 const char* proc_gpu::to_string(SDL_GPUDriver driver) const
