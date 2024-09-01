@@ -6,7 +6,7 @@ function(configure_cxx_target project_ref)
   
   # Warnings
   if(MSVC)
-    add_compile_options(
+    target_compile_options(${project_ref} PRIVATE
       /Wall /WX
       /wd4061 # Switch of Enum is not explicitly handled by a case label (even if default: is present).
       /wd4514 # Unreferenced inline function
@@ -27,15 +27,15 @@ function(configure_cxx_target project_ref)
     )
     
     #Generate PDB in all build configurations
-    add_compile_options("$<$<NOT:$<CONFIG:Debug>>:/Zi>")
+    target_compile_options(${project_ref} PRIVATE "$<$<NOT:$<CONFIG:Debug>>:/Zi>")
     add_link_options("$<$<NOT:$<CONFIG:Debug>>:/DEBUG>")
   else()
     #Flags for all non-MSVC compilers:
-    add_compile_options(
+    target_compile_options(${project_ref} PRIVATE
       -Wall -Werror
     )
     
     #Disable RTTI 
-    add_compile_options(-fno-rtti)
+    target_compile_options(${project_ref} PRIVATE -fno-rtti)
   endif()
 endfunction()
