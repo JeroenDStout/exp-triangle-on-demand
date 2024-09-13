@@ -133,6 +133,12 @@ endmacro()
 
 
 macro(setup_project_source project_ref project_source_group)
+  message(STATUS "Add sources for ${project_ref}/${project_source_group}")
+  setup_project_source_internal(${project_ref} ${project_source_group} ${ARGN})
+endmacro()
+
+
+macro(setup_project_source_internal project_ref project_source_group)
   set_project_source_list(${project_ref})
   
   set(new_files "")
@@ -141,7 +147,6 @@ macro(setup_project_source project_ref project_source_group)
   
   set(mode "")
   
-  message(STATUS "Add sources for ${project_ref}/${project_source_group}")
   
   if (${ARGC} GREATER 3)
     internal_recursive_setup_project_source("" ${ARGN})

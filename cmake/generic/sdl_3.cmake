@@ -6,7 +6,7 @@ include(FetchContent)
 FetchContent_Declare(
   sdl_3
   GIT_REPOSITORY https://github.com/libsdl-org/SDL.git
-  GIT_TAG        Main
+  GIT_TAG        d483886ec5761cd661d441ab40e231288c635c54
   GIT_PROGRESS   TRUE
 )
 FetchContent_MakeAvailable(sdl_3)
@@ -20,7 +20,7 @@ set_target_properties(SDL_uclibc SDL3_test SDL3-shared PROPERTIES
 FetchContent_Declare(
   sdl_gpu_shadercross
   GIT_REPOSITORY https://github.com/flibitijibibo/SDL_gpu_shadercross.git
-  GIT_TAG        57e4a255125d26fc0fd91bc49336f1f56d77a8cc
+  GIT_TAG        c6b785c752e20270b83b770a52508e4fac5d48af
   GIT_PROGRESS   TRUE
   SOURCE_DIR     $CACHE{FETCHCONTENT_BASE_DIR}/_deps/sdl_gpu_shadercross-src/shadercross
 )
