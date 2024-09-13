@@ -10,7 +10,7 @@ if len(sys.argv) >= 2:
 
 print("Setting up junctions for " + root_path)
 
-folder_types = [ "cmake", "src", "include", "script" ]
+folder_types = [ "cmake", "src", "include", "script", "assets" ]
 folder_map   = {}
 
 for folder_t in folder_types:

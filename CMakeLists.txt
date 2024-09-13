@@ -25,6 +25,7 @@ include(cmake/generic/nanobind.cmake)
 include(cmake/generic/outputs.cmake)
 include(cmake/generic/artefacts.cmake)
 include(cmake/generic/sources.cmake)
+include(cmake/generic/assets.cmake)
 include(cmake/generic/publish.cmake)
 
 # Subprojects
