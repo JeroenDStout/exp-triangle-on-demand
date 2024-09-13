@@ -5,14 +5,11 @@ init_project(tod_core "triangle_on_demand")
 
 # Sources
 setup_project_source(tod_core "core/data"
-  src:
-    data_gpu.cpp
   include:
     data_gpu.h
+    data_tod.h
 )
 setup_project_source(tod_core "core/policy"
-  src:
-    poli_gpu.cpp
   include:
     poli_gpu.h
     poli_tod.h
@@ -24,6 +21,10 @@ setup_project_source(tod_core "core/proc"
   include:
     proc_gpu.h
     proc_tod.h
+)
+setup_project_source(tod_core "sugar"
+  include:
+    io.h
 )
 setup_project_source(tod_core "third_party"
   src:

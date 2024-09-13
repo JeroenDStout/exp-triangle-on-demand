@@ -30,14 +30,14 @@ void nb_data_tod_py(nanobind::module_ &m)
         p.create_gpu_context(data->context, { .create_window = false });
         
         SDL_GPUTextureCreateInfo gpu_tex_info{
-		  .type              = SDL_GPU_TEXTURETYPE_2D,
-		  .format            = SDL_GPU_TEXTUREFORMAT_R8G8B8A8_UNORM,
-		  .usageFlags        = SDL_GPU_TEXTUREUSAGE_SAMPLER_BIT | SDL_GPU_TEXTUREUSAGE_COLOR_TARGET_BIT,
-		  .width             = 640,
-		  .height            = 480,
-		  .layerCountOrDepth = 1,
-		  .levelCount        = 1,
-          .sampleCount       = SDL_GPU_SAMPLECOUNT_1
+		  .type                 = SDL_GPU_TEXTURETYPE_2D,
+		  .format               = SDL_GPU_TEXTUREFORMAT_R8G8B8A8_UNORM,
+		  .usage                = SDL_GPU_TEXTUREUSAGE_SAMPLER | SDL_GPU_TEXTUREUSAGE_COLOR_TARGET,
+		  .width                = 640,
+		  .height               = 480,
+		  .layer_count_or_depth = 1,
+		  .num_levels           = 1,
+          .sample_count         = SDL_GPU_SAMPLECOUNT_1
 	    };
 	    data->gpu_tex = SDL_CreateGPUTexture(data->context.device, &gpu_tex_info);
         if (!data->gpu_tex) {
@@ -45,8 +45,8 @@ void nb_data_tod_py(nanobind::module_ &m)
         }
             
         SDL_GPUTransferBufferCreateInfo gpu_transfer_buffer_info{
-	      .usage       = SDL_GPU_TRANSFERBUFFERUSAGE_DOWNLOAD,
-		  .sizeInBytes = 640 * 480 * 4
+	      .usage = SDL_GPU_TRANSFERBUFFERUSAGE_DOWNLOAD,
+		  .size  = 640 * 480 * 4
         };
         data->gpu_transfer_buffer = SDL_CreateGPUTransferBuffer(data->context.device, &gpu_transfer_buffer_info);
         if (!data->gpu_transfer_buffer) {
@@ -65,16 +65,16 @@ void nb_data_tod_py(nanobind::module_ &m)
         SDL_GPUCommandBuffer *cmd_buf = SDL_AcquireGPUCommandBuffer(data.context.device);
         
         SDL_GPUTextureTransferInfo transfer_info{
-	      .transferBuffer = data.gpu_transfer_buffer,
-          .offset         = 0
+	      .transfer_buffer = data.gpu_transfer_buffer,
+          .offset          = 0
 		};
         SDL_GPUTextureRegion region{
-		  .texture  = data.gpu_tex,
-          .mipLevel = 0,
-          .layer    = 0,
-		  .w        = 640,
-		  .h        = 480,
-		  .d        = 1
+		  .texture   = data.gpu_tex,
+          .mip_level = 0,
+          .layer     = 0,
+		  .w         = 640,
+		  .h         = 480,
+		  .d         = 1
         };
 
 	    SDL_GPUCopyPass *copy_pass = SDL_BeginGPUCopyPass(cmd_buf);

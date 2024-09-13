@@ -20,4 +20,7 @@ namespace tod {
 
     };
 
+    struct poli_gpu_shader {
+    };
+
 }

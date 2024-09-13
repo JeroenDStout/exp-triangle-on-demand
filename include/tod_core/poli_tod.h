@@ -14,4 +14,7 @@ namespace tod {
 
     };
 
+    struct poli_tod_context {
+    };
+
 }

@@ -12,7 +12,7 @@ using namespace tod;
 
 proc_gpu::create_gpu_context_result proc_gpu::create_gpu_context(data_gpu_context& out, const poli_gpu_context& policy) const
 {
-    out.device = SDL_CreateGPUDevice(SDL_ShaderCross_GetShaderFormats(), policy.debug_mode, policy.name.size() > 0 ? policy.name.c_str() : nullptr);
+    out.device = SDL_CreateGPUDevice(SDL_ShaderCross_GetSPIRVShaderFormats(), policy.debug_mode, policy.name.size() > 0 ? policy.name.c_str() : nullptr);
     if (out.device == nullptr) {
         if (verbose_logging)
             std::cout << "ERROR: Failed to create GPU Device" << std::endl;
@@ -20,8 +20,7 @@ proc_gpu::create_gpu_context_result proc_gpu::create_gpu_context(data_gpu_contex
     }
     if (verbose_logging)
     {
-        auto driver = SDL_GetGPUDriver(out.device);
-        std::cout << "Created GPU Device with backend " << to_string(driver) << std::endl;
+        std::cout << "Created GPU Device with backend " << SDL_GetGPUDeviceDriver(out.device) << std::endl;
     }
 
     if (policy.create_window) {
@@ -41,6 +40,28 @@ proc_gpu::create_gpu_context_result proc_gpu::create_gpu_context(data_gpu_contex
     return create_gpu_context_result::success;
 }
 
+auto tod::proc_gpu::create_gpu_shader(SDL_GPUShader*& out, data_gpu_context& gpu_context, const create_gpu_shader_instr& instr, const poli_gpu_shader&) const -> create_gpu_shader_result
+{
+    SDL_GPUShaderCreateInfo info{
+      .code_size            = instr.file_data.size(),
+      .code                 = (std::uint8_t*)instr.file_data.data(),
+      .entrypoint           = "main",
+      .format               = SDL_GPU_SHADERFORMAT_SPIRV,
+      .stage                = instr.stage,
+      .num_samplers         = instr.count_sampler,
+      .num_storage_textures = instr.count_texture_storage,
+      .num_storage_buffers  = instr.count_buffer_storage,
+      .num_uniform_buffers  = instr.count_buffer_uniform
+    };
+	out = (SDL_GPUShader*)SDL_ShaderCross_CompileFromSPIRV(gpu_context.device, &info, SDL_FALSE);
+	
+	if (out)
+      return create_gpu_shader_result::success;
+
+	std::cout << "Failed to create shader: " << SDL_GetError() << std::endl;
+    return create_gpu_shader_result::failure;
+}
+
 void proc_gpu::destroy_gpu_context(data_gpu_context& inout) const
 {
     if (inout.window)
@@ -58,23 +79,8 @@ std::string proc_gpu::create_debug_string(data_gpu_context& context) const
 {
     std::stringstream ss;
     ss << "context {";
-    ss << " gpu_driver: " << to_string(SDL_GetGPUDriver(context.device));
+    ss << " gpu_driver: " << SDL_GetGPUDeviceDriver(context.device);
     ss << " }";
 
     return ss.str();
-}
-
-const char* proc_gpu::to_string(SDL_GPUDriver driver) const
-{
-    switch (driver)
-    {
-      case SDL_GPU_DRIVER_INVALID: return "invalid";
-      case SDL_GPU_DRIVER_SECRET:  return "secret";
-      case SDL_GPU_DRIVER_VULKAN:  return "vulkan";
-      case SDL_GPU_DRIVER_D3D11:   return "dx11";
-      case SDL_GPU_DRIVER_D3D12:   return "dx12";
-      case SDL_GPU_DRIVER_METAL:   return "metal";
-    }
-
-    return "invalid";
 }

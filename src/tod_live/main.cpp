@@ -8,8 +8,9 @@
 #include "tod_core/data_gpu.h"
 #include "tod_core/poli_gpu.h"
 #include "tod_core/proc_gpu.h"
-#include "tod_core/proc_tod.h"
+#include "tod_core/data_tod.h"
 #include "tod_core/poli_tod.h"
+#include "tod_core/proc_tod.h"
 
 #include "tod_core/inc_sdl.h"
 
@@ -27,20 +28,27 @@ int main(int, char*[])
       << gaos::version::get_git_history() << std::endl
       << std::endl;
 
-    tod::proc_gpu proc_gpu{};
-    tod::proc_tod proc_tod{};
-    tod::poli_tod_init poli_tod{};
+    tod::proc_gpu proc_gpu{ .verbose_logging = true };
+    tod::proc_tod proc_tod{ .verbose_logging = true };
 
+    tod::poli_tod_init    poli_tod{};
     if (!proc_tod.init_tod(poli_tod))
     {
         std::cout << "ERROR: Error init'ing ToD" << std::endl;
         return -1;
     }
 
-    tod::poli_gpu_context poli_gpu_context{};
     tod::data_gpu_context gpu_context{};
-
-    proc_gpu.create_gpu_context(gpu_context, poli_gpu_context);
+    tod::poli_gpu_context gpu_context_poli{};
+    proc_gpu.create_gpu_context(gpu_context, gpu_context_poli);
+    
+    tod::data_tod_context context_tod{};
+    tod::poli_tod_context context_tod_poli{};
+    if (!proc_tod.create_tod_context(context_tod, gpu_context, context_tod_poli))
+    {
+        std::cout << "ERROR: Error creating ToD context" << std::endl;
+        return -1;
+    }
 
     // Random clears
     {
