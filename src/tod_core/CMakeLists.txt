@@ -32,6 +32,11 @@ setup_project_source(tod_core "third_party"
     inc_shadercross.h
     inc_sdl.h
 )
+setup_project_source(tod_core "assets"
+  assets:
+    shaders/triangle.vert
+    shaders/triangle.frag
+)
 
 # Target
 configure_project_static_lib(tod_core)
@@ -39,5 +44,6 @@ configure_cxx_target(tod_core)
 configure_target_outputs(tod_core)
 configure_project_sdl(tod_core)
 configure_publish_exec(tod_core)
+configure_asset_folder(tod_core tod_core_assets ${abs_can_assets}/shaders assets/shaders)
 	
 add_dependencies(tod_core repo_version)
