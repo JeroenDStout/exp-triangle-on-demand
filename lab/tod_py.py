@@ -1,4 +1,4 @@
-# %matplotlib ipympl
+# %matplotlib widget
 
 import lab_helper
 lab_helper.import_tod_pyd()
@@ -7,29 +7,39 @@ from lab_helper import tod_py as tod
 import numpy as np
 from IPython.display import clear_output
 import matplotlib.pyplot as plt
-plt.rcParams["animation.html"] = "jshtml"
-plt.ioff();
 
+# +
 context = tod.create_tod_context()
 print(tod.get_version() + ": " + context.get_device_info())
 
+reps = 0
+
 # +
 import matplotlib.animation as animation
+import functools
 
 tod.clear(context, np.array([ 0, 0, 1 ]))
 image = tod.get_image(context)
 
+reps += 1
+def animate_func(i, my_im, if_rep):
+    global reps
+    
+    if if_rep != reps:
+        return None
+    
+    if i % 10 == 0:
+        clear_output()
+        display('#' + str(i))
+    
+    tod.clear(context, np.array([ 0.5, i / 50, 1 ]))
+    image = tod.get_image(context)
+    my_im.set_array(np.swapaxes(image, 0, 1))
+    return [ my_im ]
+
 fig = plt.figure()
 im = plt.imshow(np.swapaxes(image, 0, 1), animated=True)
 
-def animate_func(i):
-    tod.clear(context, np.array([ i / 100, i / 50, 1 ]))
-    image = tod.get_image(context)
-    im.set_array(np.swapaxes(image, 0, 1))
-    return [ im ]
-
-anim = animation.FuncAnimation(fig, animate_func, frames=100, interval=30, blit=True, repeat=False)
-anim
+anim = animation.FuncAnimation(fig, functools.partial(animate_func, my_im=im, if_rep=reps), frames=100, interval=10, blit=True, repeat=True)
 # -
-
 
