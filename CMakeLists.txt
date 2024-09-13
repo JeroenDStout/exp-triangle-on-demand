@@ -20,6 +20,7 @@ include(cmake/generic/python.cmake)
 include(cmake/generic/eigen.cmake)
 include(cmake/generic/sdl_3.cmake)
 include(cmake/generic/nanobind.cmake)
+include(cmake/generic/spv_glsllang_validator.cmake)
 
 # Support
 include(cmake/generic/outputs.cmake)

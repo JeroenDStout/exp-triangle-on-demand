@@ -39,10 +39,9 @@ setup_project_source(tod_core "assets"
   include:
     assets.h
 )
-setup_project_source(tod_core "assets/content"
-  assets:
-    shaders/triangle.vert
-    shaders/triangle.frag
+setup_project_source_spv(tod_core tod_core_spv "assets/content"
+  shaders/triangle.vert
+  shaders/triangle.frag
 )
 
 # Target
@@ -51,6 +50,6 @@ configure_cxx_target(tod_core)
 configure_target_outputs(tod_core)
 configure_project_sdl(tod_core)
 configure_publish_exec(tod_core)
-configure_asset_folder(tod_core tod_core_assets ${abs_can_assets}/shaders assets/shaders)
-	
+configure_asset_folder(tod_core tod_core_assets ${abs_gen_assets}/shaders assets/shaders)
+    
 add_dependencies(tod_core repo_version)
