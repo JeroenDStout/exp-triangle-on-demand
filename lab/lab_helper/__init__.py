@@ -12,6 +12,7 @@ def import_tod_pyd():
   cache_dir    = rel_dir + '/lab/pyd_cache/'
 
   selected_files = [ glob.glob(rel_dir + '/*/bin/RelWithDebInfo/' + f)[0] for f in relevant_files ]
+  asset_folder   = os.path.realpath(os.path.dirname(glob.glob(rel_dir + '/*/assets/')[0]))
   
   if not os.path.exists(cache_dir):
     os.makedirs(cache_dir)
@@ -34,3 +35,4 @@ def import_tod_pyd():
     shutil.copyfile(f, cache_dir + os.path.basename(f))
          
   import tod_py
+  tod_py.init(str(asset_folder))

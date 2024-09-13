@@ -1,11 +1,26 @@
 #include "tod_core/proc_tod.h"
-#include "tod_core/data_gpu.h"
+#include "tod_core/poli_tod.h"
 
 #include <iostream>
 
+#include "tod_core/data_gpu.h"
+
 #include "tod_core/inc_sdl.h"
+#include "tod_core/assets.h"
 
 using namespace tod;
+
+bool tod::proc_tod::init_tod(poli_tod_init const &p) const
+{
+	if (!assets::set_main_path(p.asset_main_path) || !assets::set_dep_paths())
+	{
+		std::cout << "ERROR: Failed to set ToD asset paths!" << std::endl;
+		return false;
+	}
+
+    SDL_Init(SDL_INIT_VIDEO);
+	return true;
+}
 
 proc_tod::pass_result proc_tod::submit_pass_clear_texture(data_gpu_context& in_context, SDL_GPUTexture& in_texture, const SDL_FColor& colour) const
 {

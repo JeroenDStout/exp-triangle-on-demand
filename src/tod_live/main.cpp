@@ -9,6 +9,7 @@
 #include "tod_core/poli_gpu.h"
 #include "tod_core/proc_gpu.h"
 #include "tod_core/proc_tod.h"
+#include "tod_core/poli_tod.h"
 
 #include "tod_core/inc_sdl.h"
 
@@ -26,10 +27,15 @@ int main(int, char*[])
       << gaos::version::get_git_history() << std::endl
       << std::endl;
 
-    SDL_Init(SDL_INIT_VIDEO);
+    tod::proc_gpu proc_gpu{};
+    tod::proc_tod proc_tod{};
+    tod::poli_tod_init poli_tod{};
 
-    tod::proc_gpu         proc_gpu{};
-    tod::proc_tod         proc_tod{};
+    if (!proc_tod.init_tod(poli_tod))
+    {
+        std::cout << "ERROR: Error init'ing ToD" << std::endl;
+        return -1;
+    }
 
     tod::poli_gpu_context poli_gpu_context{};
     tod::data_gpu_context gpu_context{};

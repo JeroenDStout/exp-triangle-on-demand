@@ -15,6 +15,7 @@ setup_project_source(tod_core "core/policy"
     poli_gpu.cpp
   include:
     poli_gpu.h
+    poli_tod.h
 )
 setup_project_source(tod_core "core/proc"
   src:
@@ -33,6 +34,12 @@ setup_project_source(tod_core "third_party"
     inc_sdl.h
 )
 setup_project_source(tod_core "assets"
+  src:
+    assets.cpp
+  include:
+    assets.h
+)
+setup_project_source(tod_core "assets/content"
   assets:
     shaders/triangle.vert
     shaders/triangle.frag

@@ -11,14 +11,15 @@
 namespace tod {
 
     struct data_gpu_context;
-    struct pol_gpu_context;
+    struct poli_tod_init;
 
     struct proc_tod {
         
         bool verbose_logging = true;
         
-        enum class pass_result { success, failure };
+        bool init_tod(poli_tod_init const &) const;
 
+        enum class pass_result { success, failure };
         pass_result submit_pass_clear_texture(data_gpu_context& in_context, SDL_GPUTexture& in_texture, const SDL_FColor& colour) const;
         pass_result submit_pass_clear_window(data_gpu_context& in_context, const SDL_FColor& colour) const;
 
