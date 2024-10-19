@@ -84,11 +84,11 @@ void nb_data_tod_py(nanobind::module_ &m)
 	    SDL_EndGPUCopyPass(copy_pass);
 
         SDL_GPUFence* fence = SDL_SubmitGPUCommandBufferAndAcquireFence(cmd_buf);
-	    SDL_WaitForGPUFences(data.context.device, SDL_TRUE, &fence, 1);
+	    SDL_WaitForGPUFences(data.context.device, true, &fence, 1);
 	    SDL_ReleaseGPUFence( data.context.device, fence);
 
 	    std::byte* transfer_ptr = (std::byte*)SDL_MapGPUTransferBuffer(
-		    data.context.device, data.gpu_transfer_buffer, SDL_FALSE
+		    data.context.device, data.gpu_transfer_buffer, false
 	    );
         std::byte* array_ptr = new std::byte[640 * 480 * 4];
         nb::capsule owner(array_ptr, [](void *p) noexcept {

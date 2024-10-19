@@ -53,7 +53,7 @@ auto tod::proc_gpu::create_gpu_shader(SDL_GPUShader*& out, data_gpu_context& gpu
       .num_storage_buffers  = instr.count_buffer_storage,
       .num_uniform_buffers  = instr.count_buffer_uniform
     };
-	out = (SDL_GPUShader*)SDL_ShaderCross_CompileFromSPIRV(gpu_context.device, &info, SDL_FALSE);
+	out = (SDL_GPUShader*)SDL_ShaderCross_CompileGraphicsShaderFromSPIRV(gpu_context.device, &info);
 	
 	if (out)
       return create_gpu_shader_result::success;

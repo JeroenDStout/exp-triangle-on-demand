@@ -82,8 +82,8 @@ proc_tod::pass_result proc_tod::submit_pass_clear_window(data_gpu_context& in_co
 	}
 
 	std::uint32_t w, h;
-	SDL_GPUTexture* swapchain_tex = SDL_AcquireGPUSwapchainTexture(cmd_buf, in_context.window, &w, &h);
-	if (swapchain_tex)
+	SDL_GPUTexture *swapchain_tex;
+	if (SDL_AcquireGPUSwapchainTexture(cmd_buf, in_context.window, &swapchain_tex, &w, &h))
 	  create_pass_clear_cmd(*cmd_buf, *swapchain_tex, colour);
 
 	SDL_SubmitGPUCommandBuffer(cmd_buf);
