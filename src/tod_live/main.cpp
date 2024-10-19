@@ -4,15 +4,7 @@
 #include <random>
 
 #include "repo_version/git_version.h"
-
-#include "tod_core/data_gpu.h"
-#include "tod_core/poli_gpu.h"
-#include "tod_core/proc_gpu.h"
-#include "tod_core/data_tod.h"
-#include "tod_core/poli_tod.h"
-#include "tod_core/proc_tod.h"
-
-#include "tod_core/inc_sdl.h"
+#include "tod_live/live.h"
 
 int main(int, char*[])
 {
@@ -28,42 +20,18 @@ int main(int, char*[])
       << gaos::version::get_git_history() << std::endl
       << std::endl;
 
-    tod::proc_gpu proc_gpu{ .verbose_logging = true };
-    tod::proc_tod proc_tod{ .verbose_logging = true };
-
-    tod::poli_tod_init    poli_tod{};
-    if (!proc_tod.init_tod(poli_tod))
-    {
-        std::cout << "ERROR: Error init'ing ToD" << std::endl;
-        return -1;
-    }
-
-    tod::data_gpu_context gpu_context{};
-    tod::poli_gpu_context gpu_context_poli{};
-    proc_gpu.create_gpu_context(gpu_context, gpu_context_poli);
+    tod_live::handler_tod_live handler{};
     
-    tod::data_tod_context context_tod{};
-    tod::poli_tod_context context_tod_poli{};
-    if (!proc_tod.create_tod_context(context_tod, gpu_context, context_tod_poli))
-    {
-        std::cout << "ERROR: Error creating ToD context" << std::endl;
-        return -1;
-    }
-
-    // Random clears
-    {
-        std::random_device rd;
-        std::mt19937 e2(rd());
-        std::uniform_real_distribution<float> dist(0.f, 1.f);
-
-        for (int i = 0; i < 10; ++i)
-        {
-            proc_tod.submit_pass_clear_window(gpu_context, { dist(e2), dist(e2), dist(e2), 1.f });
-            SDL_Delay(300);
-        }
-    }
-
-    proc_gpu.destroy_gpu_context(gpu_context);
+    if (handler.prepare() != tod_live::handler_tod_live::handler_result::success)
+    { std::cout << "ERROR: Error prepare'ing ToD Live" << std::endl; return -1; }
+    if (handler.init()    != tod_live::handler_tod_live::handler_result::success)
+    { std::cout << "ERROR: Error init'ing ToD Live"    << std::endl; return -1; }
+    if (handler.run() != tod_live::handler_tod_live::handler_result::success)
+    { std::cout << "ERROR: Error run'ing ToD Live"     << std::endl; return -1; }
+    if (handler.deinit()  != tod_live::handler_tod_live::handler_result::success)
+    { std::cout << "ERROR: Error deinit'ing ToD Live"  << std::endl; return -1; }
+    if (handler.cleanup() != tod_live::handler_tod_live::handler_result::success)
+    { std::cout << "ERROR: Error cleanup'ing ToD Live" << std::endl; return -1; }
 
     return 0;
 }
