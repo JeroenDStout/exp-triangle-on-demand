@@ -8,6 +8,7 @@ setup_project_source(tod_core "core/data"
   include:
     data_gpu.h
     data_tod.h
+    data_vert.h
 )
 setup_project_source(tod_core "core/policy"
   include:
@@ -20,11 +21,13 @@ setup_project_source(tod_core "core/proc"
     proc_tod.cpp
   include:
     proc_gpu.h
+    proc_gpu_impl.h
     proc_tod.h
 )
 setup_project_source(tod_core "sugar"
   include:
     io.h
+    refvalue.h
 )
 setup_project_source(tod_core "third_party"
   src:

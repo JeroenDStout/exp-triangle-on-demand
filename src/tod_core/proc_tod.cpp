@@ -1,18 +1,26 @@
-#include "tod_core/proc_tod.h"
+﻿#include "tod_core/proc_tod.h"
 #include "tod_core/poli_tod.h"
 #include "tod_core/data_tod.h"
 
 #include <iostream>
 
 #include "tod_core/io.h"
+#include "tod_core/refvalue.h"
 
 #include "tod_core/data_gpu.h"
+#include "tod_core/data_vert.h"
 #include "tod_core/poli_gpu.h"
 #include "tod_core/proc_gpu.h"
+#include "tod_core/proc_gpu_impl.h"
 
 #include "tod_core/inc_sdl.h"
 #include "tod_core/inc_shadercross.h"
 #include "tod_core/assets.h"
+
+#if defined(_MSC_VER)
+#  pragma warning(push)
+#  pragma warning(disable : 4566) // character represented by universal-character-name (...) cannot be represented in the current code page
+#endif
 
 using namespace tod;
 
@@ -31,6 +39,8 @@ bool tod::proc_tod::init_tod(poli_tod_init const &p) const
 
 bool tod::proc_tod::create_tod_context(data_tod_context &out_tod_context, data_gpu_context &in_gpu_context, poli_tod_context const &) const
 {
+	namespace ts = tod::sugar;
+
 	tod::proc_gpu		 proc_gpu{};
 	tod::poli_gpu_shader poli_gpu_shader{};
 
@@ -51,6 +61,23 @@ bool tod::proc_tod::create_tod_context(data_tod_context &out_tod_context, data_g
 	    .stage = SDL_GPU_SHADERSTAGE_FRAGMENT, .file_data = tmp_string
 	  }, poli_gpu_shader
 	);
+
+	out_tod_context.vert_buffer = SDL_CreateGPUBuffer(
+      in_gpu_context.device,
+	  &ts::keep(SDL_GPUBufferCreateInfo{
+		.usage = SDL_GPU_BUFFERUSAGE_INDEX,
+		.size = tod::vert::pos_col_size * 3
+	  })
+    );
+	proc_gpu.with_perform_gpu_upload_pass(in_gpu_context,
+	  tod::vert::pos_col_size * 3,
+	  [&proc_gpu, &out_tod_context](tod::proc_gpu::data_gpu_upload_pass_context& context) {
+		proc_gpu.add_count_to_gpu_upload_pass<tod::vert::pos_col>(context, 3, *out_tod_context.vert_buffer, 0, [](tod::vert::pos_col* data) {
+	      data[0] = {                   0.f,  0.75f, 0xFF, 0x00, 0x00, 0xFF };
+	      data[1] = {  std::sqrt(3.f) / 2.f, -0.75f, 0x00, 0xFF, 0x00, 0xFF };
+	      data[2] = { -std::sqrt(3.f) / 2.f, -0.75f, 0x00, 0x00, 0xFF, 0xFF };
+		});
+	});
 
     return true;
 }
@@ -102,3 +129,7 @@ void proc_tod::create_pass_clear_cmd(SDL_GPUCommandBuffer &in_cmd, SDL_GPUTextur
 	SDL_GPURenderPass* renderPass = SDL_BeginGPURenderPass(&in_cmd, &color_op, 1, NULL);
 	SDL_EndGPURenderPass(renderPass);
 }
+
+#if defined(_MSC_VER)
+#  pragma warning(pop)
+#endif

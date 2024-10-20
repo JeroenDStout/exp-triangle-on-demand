@@ -4,6 +4,7 @@
  *  ...
  */
 
+struct SDL_GPUBuffer;
 struct SDL_GPUShader;
 
 namespace tod {
@@ -12,6 +13,8 @@ namespace tod {
         
         SDL_GPUShader   *vert_shader,
                         *frag_shader;
+
+        SDL_GPUBuffer   *vert_buffer;
 
     };
 
