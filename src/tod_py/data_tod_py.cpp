@@ -31,7 +31,7 @@ void nb_data_tod_py(nanobind::module_ &m)
         proc_gpu.create_gpu_context(data->gpu_context, { .create_window = false });
         
         tod::proc_tod proc_tod{};
-        proc_tod.create_tod_context(data->tod_context, data->gpu_context, {});
+        proc_tod.create_tod_context(data->tod_context, data->gpu_context, { .format = SDL_GPU_TEXTUREFORMAT_R8G8B8A8_UNORM });
 
         SDL_GPUTextureCreateInfo gpu_tex_info{
 		  .type                 = SDL_GPU_TEXTURETYPE_2D,
@@ -107,6 +107,6 @@ void nb_data_tod_py(nanobind::module_ &m)
 
 	    SDL_UnmapGPUTransferBuffer(data.gpu_context.device, data.gpu_transfer_buffer);
         
-        return nb::ndarray<nb::numpy, std::uint8_t>(array_ptr, { 640, 480, 4 }, owner);
+        return nb::ndarray<nb::numpy, std::uint8_t>(array_ptr, { 480, 640, 4 }, owner);
     });
 }

@@ -37,7 +37,7 @@ bool tod::proc_tod::init_tod(poli_tod_init const &p) const
 	return true;
 }
 
-bool tod::proc_tod::create_tod_context(data_tod_context &out_tod_context, data_gpu_context &in_gpu_context, poli_tod_context const &) const
+bool tod::proc_tod::create_tod_context(data_tod_context &out_tod_context, data_gpu_context &in_gpu_context, poli_tod_context const &policy) const
 {
 	namespace ts = tod::sugar;
 
@@ -115,7 +115,7 @@ bool tod::proc_tod::create_tod_context(data_tod_context &out_tod_context, data_g
 	  .target_info = {
 		.color_target_descriptions = sugar::make_array<SDL_GPUColorTargetDescription>(
 		  SDL_GPUColorTargetDescription{
-			.format      = SDL_GPU_TEXTUREFORMAT_R8G8B8A8_UNORM,
+			.format      = policy.format,
 			.blend_state = {
 			  .enable_blend = false
 			}

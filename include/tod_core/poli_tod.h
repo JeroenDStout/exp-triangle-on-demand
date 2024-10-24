@@ -5,6 +5,7 @@
  */
 
  #include <filesystem>
+ enum SDL_GPUTextureFormat : int;
 
 namespace tod {
 
@@ -15,6 +16,9 @@ namespace tod {
     };
 
     struct poli_tod_context {
+
+        SDL_GPUTextureFormat format;
+
     };
 
 }

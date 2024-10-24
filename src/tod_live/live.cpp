@@ -30,7 +30,7 @@ auto handler_tod_live::init() -> handler_result
     tod::poli_gpu_context gpu_context_poli{};
     proc_gpu.create_gpu_context(this->gpu_context, gpu_context_poli);
     
-    tod::poli_tod_context tod_context_poli{};
+    tod::poli_tod_context tod_context_poli{ .format = SDL_GetGPUSwapchainTextureFormat(this->gpu_context.device, this->gpu_context.window) };
     if (!proc_tod.create_tod_context(tod_context, gpu_context, tod_context_poli))
     {
         std::cout << "ERROR: Error creating ToD context" << std::endl;
