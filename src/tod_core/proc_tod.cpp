@@ -115,7 +115,7 @@ bool tod::proc_tod::create_tod_context(data_tod_context &out_tod_context, data_g
 	  .target_info = {
 		.color_target_descriptions = sugar::make_array<SDL_GPUColorTargetDescription>(
 		  SDL_GPUColorTargetDescription{
-			.format      = SDL_GetGPUSwapchainTextureFormat(in_gpu_context.device, in_gpu_context.window),
+			.format      = SDL_GPU_TEXTUREFORMAT_R8G8B8A8_UNORM,
 			.blend_state = {
 			  .enable_blend = false
 			}
@@ -158,6 +158,23 @@ proc_tod::pass_result proc_tod::submit_pass_clear_window(data_gpu_context& in_co
 	SDL_GPUTexture *swapchain_tex;
 	if (SDL_AcquireGPUSwapchainTexture(cmd_buf, in_context.window, &swapchain_tex, &w, &h))
 	  create_pass_clear_cmd(*cmd_buf, *swapchain_tex, colour);
+
+	SDL_SubmitGPUCommandBuffer(cmd_buf);
+
+	return pass_result::success;
+}
+
+proc_tod::pass_result tod::proc_tod::submit_pass_render_triangle_to_texture(data_gpu_context &gpu_context, data_tod_context &tod_context, SDL_GPUTexture &in_tex, SDL_FColor const &clear_colour) const
+{
+	SDL_GPUCommandBuffer* cmd_buf = SDL_AcquireGPUCommandBuffer(gpu_context.device);
+	if (cmd_buf == nullptr)
+	{
+        if (verbose_logging)
+          std::cout << "ERROR: Failed to acquire gpu command buffer" << std::endl;
+		return pass_result::failure;
+	}
+
+	create_pass_draw_triangle(*cmd_buf, tod_context, in_tex, clear_colour);
 
 	SDL_SubmitGPUCommandBuffer(cmd_buf);
 

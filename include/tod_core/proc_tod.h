@@ -26,7 +26,7 @@ namespace tod {
         enum class pass_result { success, failure };
         pass_result submit_pass_clear_texture(data_gpu_context &, SDL_GPUTexture &in_texture, SDL_FColor const &clear_colour) const;
         pass_result submit_pass_clear_window(data_gpu_context &, SDL_FColor const &clear_colour) const;
-        pass_result submit_pass_render_triangle_to_texture(data_gpu_context &, SDL_GPUTexture &in_texture, SDL_FColor const &clear_colour) const;
+        pass_result submit_pass_render_triangle_to_texture(data_gpu_context &, data_tod_context &, SDL_GPUTexture &in_texture, SDL_FColor const &clear_colour) const;
         pass_result submit_pass_render_triangle_to_window(data_gpu_context &, data_tod_context &, SDL_FColor const &clear_colour) const;
 
       protected:
