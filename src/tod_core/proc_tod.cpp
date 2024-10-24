@@ -128,38 +128,6 @@ bool tod::proc_tod::create_tod_context(data_tod_context &out_tod_context, data_g
     return true;
 }
 
-proc_tod::pass_result proc_tod::submit_pass_draw_triangle(data_gpu_context &in_gpu_context, data_tod_context &in_tod_context, SDL_FColor const &colour) const
-{
-	SDL_GPUCommandBuffer* cmd_buf = SDL_AcquireGPUCommandBuffer(in_gpu_context.device);
-	if (cmd_buf == nullptr)
-	{
-        if (verbose_logging)
-          std::cout << "ERROR: Failed to acquire gpu command buffer" << std::endl;
-		return pass_result::failure;
-	}
-
-	std::uint32_t w, h;
-	SDL_GPUTexture *swapchain_tex;
-	SDL_AcquireGPUSwapchainTexture(cmd_buf, in_gpu_context.window, &swapchain_tex, &w, &h);
-
-	auto render_pass = SDL_BeginGPURenderPass(cmd_buf,
-	  sugar::make_array<SDL_GPUColorTargetInfo>(
-		SDL_GPUColorTargetInfo{ .texture = swapchain_tex, .clear_color = colour, .load_op = SDL_GPU_LOADOP_CLEAR }
-	  ).data(), 1, nullptr
-	);
-	SDL_BindGPUGraphicsPipeline(render_pass, in_tod_context.pipeline);
-	SDL_BindGPUVertexBuffers(render_pass, 0, sugar::make_array<SDL_GPUBufferBinding>(
-	  SDL_GPUBufferBinding{ .buffer = in_tod_context.vert_buffer, .offset = 0 }
-	  ).data(), 1
-	);
-	SDL_DrawGPUPrimitives(render_pass, 3, 1, 0, 0);
-	SDL_EndGPURenderPass(render_pass);
-
-	SDL_SubmitGPUCommandBuffer(cmd_buf);
-
-	return pass_result::success;
-}
-
 proc_tod::pass_result proc_tod::submit_pass_clear_texture(data_gpu_context& in_context, SDL_GPUTexture& in_texture, const SDL_FColor& colour) const
 {
 	SDL_GPUCommandBuffer* cmd_buf = SDL_AcquireGPUCommandBuffer(in_context.device);
@@ -196,6 +164,27 @@ proc_tod::pass_result proc_tod::submit_pass_clear_window(data_gpu_context& in_co
 	return pass_result::success;
 }
 
+proc_tod::pass_result tod::proc_tod::submit_pass_render_triangle_to_window(data_gpu_context &gpu_context, data_tod_context &tod_context, SDL_FColor const &clear_colour) const
+{
+	SDL_GPUCommandBuffer* cmd_buf = SDL_AcquireGPUCommandBuffer(gpu_context.device);
+	if (cmd_buf == nullptr)
+	{
+        if (verbose_logging)
+          std::cout << "ERROR: Failed to acquire gpu command buffer" << std::endl;
+		return pass_result::failure;
+	}
+
+	std::uint32_t w, h;
+	SDL_GPUTexture *swapchain_tex;
+	SDL_AcquireGPUSwapchainTexture(cmd_buf, gpu_context.window, &swapchain_tex, &w, &h);
+
+	create_pass_draw_triangle(*cmd_buf, tod_context, *swapchain_tex, clear_colour);
+
+	SDL_SubmitGPUCommandBuffer(cmd_buf);
+
+	return pass_result::success;
+}
+
 void proc_tod::create_pass_clear_cmd(SDL_GPUCommandBuffer &in_cmd, SDL_GPUTexture &in_tex, const SDL_FColor &colour) const
 {
 	SDL_GPUColorTargetInfo color_op = { 0 };
@@ -206,6 +195,22 @@ void proc_tod::create_pass_clear_cmd(SDL_GPUCommandBuffer &in_cmd, SDL_GPUTextur
 
 	SDL_GPURenderPass* renderPass = SDL_BeginGPURenderPass(&in_cmd, &color_op, 1, NULL);
 	SDL_EndGPURenderPass(renderPass);
+}
+
+void proc_tod::create_pass_draw_triangle(SDL_GPUCommandBuffer &cmd, data_tod_context &tod_context, SDL_GPUTexture &in_tex, SDL_FColor const &clear_colour) const
+{
+	auto render_pass = SDL_BeginGPURenderPass(&cmd,
+	  sugar::make_array<SDL_GPUColorTargetInfo>(
+		SDL_GPUColorTargetInfo{ .texture = &in_tex, .clear_color = clear_colour, .load_op = SDL_GPU_LOADOP_CLEAR }
+	  ).data(), 1, nullptr
+	);
+	SDL_BindGPUGraphicsPipeline(render_pass, tod_context.pipeline);
+	SDL_BindGPUVertexBuffers(render_pass, 0, sugar::make_array<SDL_GPUBufferBinding>(
+	  SDL_GPUBufferBinding{ .buffer = tod_context.vert_buffer, .offset = 0 }
+	  ).data(), 1
+	);
+	SDL_DrawGPUPrimitives(render_pass, 3, 1, 0, 0);
+	SDL_EndGPURenderPass(render_pass);
 }
 
 #if defined(_MSC_VER)

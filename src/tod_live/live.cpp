@@ -48,7 +48,7 @@ auto handler_tod_live::run() -> handler_result
 
     for (int i = 0; i < 10; ++i)
     {
-        proc_tod.submit_pass_draw_triangle(gpu_context, tod_context, { dist(e2), dist(e2), dist(e2), 1.f });
+        proc_tod.submit_pass_render_triangle_to_window(gpu_context, tod_context, { dist(e2), dist(e2), dist(e2), 1.f });
         SDL_Delay(300);
     }
 
