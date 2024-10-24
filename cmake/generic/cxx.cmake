@@ -22,6 +22,7 @@ function(configure_cxx_target project_ref)
       /wd5026 # Move constructor was implicitly defined as deleted
       /wd5045 # Spectre mitigation
       /wd5219 # Implicit conversion from 'type-1' to 'type-2', possible loss of data
+      /wd5257 # Enumeration was previously declared without a fixed underlying type
       /wd5262 # Implicit fall-through
       /wd5264 # 'const' variable is not used
     )
