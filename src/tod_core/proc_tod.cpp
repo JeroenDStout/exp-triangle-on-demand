@@ -65,7 +65,7 @@ bool tod::proc_tod::create_tod_context(data_tod_context &out_tod_context, data_g
 	out_tod_context.vert_buffer = SDL_CreateGPUBuffer(
       in_gpu_context.device,
 	  &ts::keep(SDL_GPUBufferCreateInfo{
-		.usage = SDL_GPU_BUFFERUSAGE_INDEX,
+		.usage = SDL_GPU_BUFFERUSAGE_VERTEX,
 		.size = tod::vert::pos_col_size * 3
 	  })
     );
@@ -73,13 +73,91 @@ bool tod::proc_tod::create_tod_context(data_tod_context &out_tod_context, data_g
 	  tod::vert::pos_col_size * 3,
 	  [&proc_gpu, &out_tod_context](tod::proc_gpu::data_gpu_upload_pass_context& context) {
 		proc_gpu.add_count_to_gpu_upload_pass<tod::vert::pos_col>(context, 3, *out_tod_context.vert_buffer, 0, [](tod::vert::pos_col* data) {
-	      data[0] = {                   0.f,  0.75f, 0xFF, 0x00, 0x00, 0xFF };
-	      data[1] = {  std::sqrt(3.f) / 2.f, -0.75f, 0x00, 0xFF, 0x00, 0xFF };
-	      data[2] = { -std::sqrt(3.f) / 2.f, -0.75f, 0x00, 0x00, 0xFF, 0xFF };
+	      data[0] = {                   0.f,  0.75f, 0xFF, 0xFF, 0x00, 0x00 };
+	      data[1] = {  std::sqrt(3.f) / 2.f, -0.75f, 0xFF, 0x00, 0xFF, 0x00 };
+	      data[2] = { -std::sqrt(3.f) / 2.f, -0.75f, 0xFF, 0x00, 0x00, 0xFF };
 		});
 	});
 
+	out_tod_context.pipeline = SDL_CreateGPUGraphicsPipeline(in_gpu_context.device, &sugar::keep(SDL_GPUGraphicsPipelineCreateInfo{
+	  .vertex_shader   = out_tod_context.vert_shader,
+	  .fragment_shader = out_tod_context.frag_shader,
+	  .vertex_input_state = {
+		.vertex_buffer_descriptions = sugar::make_array<SDL_GPUVertexBufferDescription>(
+		  SDL_GPUVertexBufferDescription{
+			.slot			    = 0,
+			.pitch				= tod::vert::pos_col_size,
+			.input_rate		    = SDL_GPU_VERTEXINPUTRATE_VERTEX,
+			.instance_step_rate = 0
+		  }
+		).data(),
+		.num_vertex_buffers = 1,
+		.vertex_attributes = sugar::make_array<SDL_GPUVertexAttribute>(
+		  SDL_GPUVertexAttribute{
+			.location			= 0,
+			.buffer_slot		= 0,
+			.format				= SDL_GPU_VERTEXELEMENTFORMAT_FLOAT3,
+			.offset				= 0
+		  },
+		  SDL_GPUVertexAttribute{
+			.location			= 1,
+			.buffer_slot		= 0,
+			.format				= SDL_GPU_VERTEXELEMENTFORMAT_UBYTE4_NORM,
+			.offset				= sizeof(float) * 3
+		  }
+		).data(),
+		.num_vertex_attributes = 2
+	  },
+	  .primitive_type      = SDL_GPU_PRIMITIVETYPE_TRIANGLELIST,
+	  .rasterizer_state    = SDL_GPURasterizerState{},
+	  .multisample_state   = SDL_GPUMultisampleState{},
+	  .depth_stencil_state = SDL_GPUDepthStencilState{},
+	  .target_info = {
+		.color_target_descriptions = sugar::make_array<SDL_GPUColorTargetDescription>(
+		  SDL_GPUColorTargetDescription{
+			.format      = SDL_GetGPUSwapchainTextureFormat(in_gpu_context.device, in_gpu_context.window),
+			.blend_state = {
+			  .enable_blend = false
+			}
+		  }
+		).data(),
+		.num_color_targets = 1
+	  }
+	}));
+
     return true;
+}
+
+proc_tod::pass_result proc_tod::submit_pass_draw_triangle(data_gpu_context &in_gpu_context, data_tod_context &in_tod_context, SDL_FColor const &colour) const
+{
+	SDL_GPUCommandBuffer* cmd_buf = SDL_AcquireGPUCommandBuffer(in_gpu_context.device);
+	if (cmd_buf == nullptr)
+	{
+        if (verbose_logging)
+          std::cout << "ERROR: Failed to acquire gpu command buffer" << std::endl;
+		return pass_result::failure;
+	}
+
+	std::uint32_t w, h;
+	SDL_GPUTexture *swapchain_tex;
+	SDL_AcquireGPUSwapchainTexture(cmd_buf, in_gpu_context.window, &swapchain_tex, &w, &h);
+
+	auto render_pass = SDL_BeginGPURenderPass(cmd_buf,
+	  sugar::make_array<SDL_GPUColorTargetInfo>(
+		SDL_GPUColorTargetInfo{ .texture = swapchain_tex, .clear_color = colour, .load_op = SDL_GPU_LOADOP_CLEAR }
+	  ).data(), 1, nullptr
+	);
+	SDL_BindGPUGraphicsPipeline(render_pass, in_tod_context.pipeline);
+	SDL_BindGPUVertexBuffers(render_pass, 0, sugar::make_array<SDL_GPUBufferBinding>(
+	  SDL_GPUBufferBinding{ .buffer = in_tod_context.vert_buffer, .offset = 0 }
+	  ).data(), 1
+	);
+	SDL_DrawGPUPrimitives(render_pass, 3, 1, 0, 0);
+	SDL_EndGPURenderPass(render_pass);
+
+	SDL_SubmitGPUCommandBuffer(cmd_buf);
+
+	return pass_result::success;
 }
 
 proc_tod::pass_result proc_tod::submit_pass_clear_texture(data_gpu_context& in_context, SDL_GPUTexture& in_texture, const SDL_FColor& colour) const
