@@ -73,9 +73,9 @@ bool tod::proc_tod::create_tod_context(data_tod_context &out_tod_context, data_g
 	  tod::vert::pos_col_size * 3,
 	  [&proc_gpu, &out_tod_context](tod::proc_gpu::data_gpu_upload_pass_context& context) {
 		proc_gpu.add_count_to_gpu_upload_pass<tod::vert::pos_col>(context, 3, *out_tod_context.vert_buffer, 0, [](tod::vert::pos_col* data) {
-	      data[0] = {                   0.f,  0.75f, 0xFF, 0xFF, 0x00, 0x00 };
-	      data[1] = {  std::sqrt(3.f) / 2.f, -0.75f, 0xFF, 0x00, 0xFF, 0x00 };
-	      data[2] = { -std::sqrt(3.f) / 2.f, -0.75f, 0xFF, 0x00, 0x00, 0xFF };
+	      data[0] = {                   0.f,  0.75f, 0.f, 0xFF, 0x00, 0x00, 0xFF };
+	      data[1] = {  std::sqrt(3.f) / 2.f, -0.75f, 0.f, 0x00, 0xFF, 0x00, 0xFF };
+	      data[2] = { -std::sqrt(3.f) / 2.f, -0.75f, 0.f, 0x00, 0x00, 0xFF, 0xFF };
 		});
 	});
 
