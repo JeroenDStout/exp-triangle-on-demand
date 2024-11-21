@@ -12,11 +12,9 @@ namespace tod::sugar {
         return x;
     }
 
-    template <typename T, typename... Ts>
-    constexpr auto make_array(const Ts&&... values) noexcept {
-        using array_type = T;
-        static_assert(sizeof...(Ts) > 0, "Array must have at least one element");
-        return std::array<array_type, sizeof...(Ts)>{ static_cast<T>(values)... };
+    template <typename array_t, typename... Ts>
+    constexpr auto make_array(array_t &&primary, Ts &&... runon) noexcept {
+        return std::array<array_t, sizeof...(Ts) + 1>{ primary, runon... };
     }
 
 }

@@ -83,7 +83,7 @@ bool tod::proc_tod::create_tod_context(data_tod_context &out_tod_context, data_g
 	  .vertex_shader   = out_tod_context.vert_shader,
 	  .fragment_shader = out_tod_context.frag_shader,
 	  .vertex_input_state = {
-		.vertex_buffer_descriptions = sugar::make_array<SDL_GPUVertexBufferDescription>(
+		.vertex_buffer_descriptions = sugar::make_array(
 		  SDL_GPUVertexBufferDescription{
 			.slot			    = 0,
 			.pitch				= tod::vert::pos_col_size,
@@ -92,7 +92,7 @@ bool tod::proc_tod::create_tod_context(data_tod_context &out_tod_context, data_g
 		  }
 		).data(),
 		.num_vertex_buffers = 1,
-		.vertex_attributes = sugar::make_array<SDL_GPUVertexAttribute>(
+		.vertex_attributes = sugar::make_array(
 		  SDL_GPUVertexAttribute{
 			.location			= 0,
 			.buffer_slot		= 0,
@@ -113,7 +113,7 @@ bool tod::proc_tod::create_tod_context(data_tod_context &out_tod_context, data_g
 	  .multisample_state   = SDL_GPUMultisampleState{},
 	  .depth_stencil_state = SDL_GPUDepthStencilState{},
 	  .target_info = {
-		.color_target_descriptions = sugar::make_array<SDL_GPUColorTargetDescription>(
+		.color_target_descriptions = sugar::make_array(
 		  SDL_GPUColorTargetDescription{
 			.format      = policy.format,
 			.blend_state = {
@@ -217,13 +217,14 @@ void proc_tod::create_pass_clear_cmd(SDL_GPUCommandBuffer &in_cmd, SDL_GPUTextur
 void proc_tod::create_pass_draw_triangle(SDL_GPUCommandBuffer &cmd, data_tod_context &tod_context, SDL_GPUTexture &in_tex, SDL_FColor const &clear_colour) const
 {
 	auto render_pass = SDL_BeginGPURenderPass(&cmd,
-	  sugar::make_array<SDL_GPUColorTargetInfo>(
+	  sugar::make_array(
 		SDL_GPUColorTargetInfo{ .texture = &in_tex, .clear_color = clear_colour, .load_op = SDL_GPU_LOADOP_CLEAR }
 	  ).data(), 1, nullptr
 	);
 	SDL_BindGPUGraphicsPipeline(render_pass, tod_context.pipeline);
-	SDL_BindGPUVertexBuffers(render_pass, 0, sugar::make_array<SDL_GPUBufferBinding>(
-	  SDL_GPUBufferBinding{ .buffer = tod_context.vert_buffer, .offset = 0 }
+	SDL_BindGPUVertexBuffers(render_pass, 0,
+	  sugar::make_array(
+	    SDL_GPUBufferBinding{ .buffer = tod_context.vert_buffer, .offset = 0 }
 	  ).data(), 1
 	);
 	SDL_DrawGPUPrimitives(render_pass, 3, 1, 0, 0);
