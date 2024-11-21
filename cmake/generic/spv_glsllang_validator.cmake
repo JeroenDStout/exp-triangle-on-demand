@@ -1,5 +1,16 @@
-message(STATUS "Config spv compiler")
+message(STATUS "Set up Glslang")
 
+include(FetchContent)
+cmake_policy(SET CMP0135 NEW) 
+
+# Obtain glslang
+FetchContent_Declare(
+  glslang
+  URL        https://github.com/KhronosGroup/glslang/releases/download/main-tot/glslang-master-windows-Release.zip
+  SOURCE_DIR $CACHE{FETCHCONTENT_BASE_DIR}/glslang
+)
+FetchContent_MakeAvailable(glslang)
+set(glslang_exe $CACHE{FETCHCONTENT_BASE_DIR}/glslang/bin/glslangValidator.exe)
 
 macro(setup_project_source_spv project_ref target_name project_source_group)
   message(STATUS "Add compile-to-spv sources for ${project_ref}/${project_source_group}")
@@ -34,7 +45,7 @@ function(setup_svp_compile_file source destination)
     COMMENT "\nSpirv (glsllang_validator) compiling ${source} to ${destination}"
     OUTPUT  ${destination}
     DEPENDS	${source}
-    COMMAND glslangValidator -V "${source}" -o "${destination}"
+    COMMAND ${glslang_exe} -V "${source}" -o "${destination}"
     VERBATIM
   )
 endfunction()
