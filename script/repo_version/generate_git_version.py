@@ -47,10 +47,10 @@ for (gid, desc, date, info, msg) in allLines:
   branchInfo = [ x.replace('HEAD ->', '').strip()
                  for x in branchInfo if     not x.startswith('origin')
                                         and not x.startswith('tag:')
+                                        and not x.startswith('template/')
                                         and not x == 'release'
                ] + [ x.replace('origin/', '').strip()
-                 for x in branchInfo if         x.startswith('origin/')
-                                        and not x.startswith('origin/HEAD')
+                 for x in branchInfo if         x.startswith('origin/gaos')
                ]
   branchInfo = list(set(branchInfo))
   branchInfo.sort()
