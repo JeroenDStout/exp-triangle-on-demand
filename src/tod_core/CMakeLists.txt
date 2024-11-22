@@ -23,11 +23,15 @@ setup_project_source(tod_core "core/proc"
     proc_gpu.h
     proc_gpu_impl.h
     proc_tod.h
+    proc_tod_impl.h
 )
 setup_project_source(tod_core "sugar"
   include:
     io.h
     refvalue.h
+    type_trait.h
+    sweet_eigen.h
+    sweet_sdl.h
 )
 setup_project_source(tod_core "third_party"
   src:
@@ -53,6 +57,7 @@ configure_project_static_lib(tod_core)
 configure_cxx_target(tod_core)
 configure_target_outputs(tod_core)
 configure_project_sdl(tod_core)
+configure_project_eigen(tod_core)
 configure_publish_exec(tod_core)
 configure_asset_folder(tod_core tod_core_assets ${abs_gen_assets}/shaders assets/shaders)
     

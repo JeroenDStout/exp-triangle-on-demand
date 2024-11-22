@@ -1,4 +1,5 @@
 ﻿#include "tod_core/proc_tod.h"
+#include "tod_core/proc_tod_impl.h"
 #include "tod_core/poli_tod.h"
 #include "tod_core/data_tod.h"
 
@@ -6,6 +7,8 @@
 
 #include "tod_core/io.h"
 #include "tod_core/refvalue.h"
+#include "tod_core/sweet_eigen.h"
+#include "tod_core/sweet_sdl.h"
 
 #include "tod_core/data_gpu.h"
 #include "tod_core/data_vert.h"
@@ -50,7 +53,9 @@ bool tod::proc_tod::create_tod_context(data_tod_context &out_tod_context, data_g
 	std::cout << "Loading triangle.vert.spv" << std::endl;
 	proc_gpu.create_gpu_shader(out_tod_context.vert_shader,
 	  in_gpu_context, tod::proc_gpu::create_gpu_shader_instr {
-		.stage = SDL_GPU_SHADERSTAGE_VERTEX, .file_data = tmp_string
+		.stage = SDL_GPU_SHADERSTAGE_VERTEX,
+		.file_data = tmp_string,
+		.count_buffer_uniform = 1
 	  }, poli_gpu_shader
 	);
 	
@@ -58,7 +63,9 @@ bool tod::proc_tod::create_tod_context(data_tod_context &out_tod_context, data_g
 	sugar::slurp_bin(tmp_string, (assets::shader_path / "triangle.frag.spv").string());
 	proc_gpu.create_gpu_shader(out_tod_context.frag_shader,
 	  in_gpu_context, tod::proc_gpu::create_gpu_shader_instr {
-	    .stage = SDL_GPU_SHADERSTAGE_FRAGMENT, .file_data = tmp_string
+	    .stage = SDL_GPU_SHADERSTAGE_FRAGMENT,
+		.file_data = tmp_string,
+		.count_buffer_uniform = 1
 	  }, poli_gpu_shader
 	);
 
@@ -164,7 +171,7 @@ proc_tod::pass_result proc_tod::submit_pass_clear_window(data_gpu_context& in_co
 	return pass_result::success;
 }
 
-proc_tod::pass_result tod::proc_tod::submit_pass_render_triangle_to_texture(data_gpu_context &gpu_context, data_tod_context &tod_context, SDL_GPUTexture &in_tex, SDL_FColor const &clear_colour) const
+proc_tod::pass_result tod::proc_tod::submit_pass_render_triangle_to_texture(data_gpu_context &gpu_context, data_tod_context &tod_context, const render_triange_instr &instr, SDL_GPUTexture &in_tex) const
 {
 	SDL_GPUCommandBuffer* cmd_buf = SDL_AcquireGPUCommandBuffer(gpu_context.device);
 	if (cmd_buf == nullptr)
@@ -174,14 +181,14 @@ proc_tod::pass_result tod::proc_tod::submit_pass_render_triangle_to_texture(data
 		return pass_result::failure;
 	}
 
-	create_pass_draw_triangle(*cmd_buf, tod_context, in_tex, clear_colour);
+	create_pass_draw_triangle(*cmd_buf, tod_context, in_tex, instr);
 
 	SDL_SubmitGPUCommandBuffer(cmd_buf);
 
 	return pass_result::success;
 }
 
-proc_tod::pass_result tod::proc_tod::submit_pass_render_triangle_to_window(data_gpu_context &gpu_context, data_tod_context &tod_context, SDL_FColor const &clear_colour) const
+proc_tod::pass_result tod::proc_tod::submit_pass_render_triangle_to_window(data_gpu_context &gpu_context, data_tod_context &tod_context, const render_triange_instr &instr) const
 {
 	SDL_GPUCommandBuffer* cmd_buf = SDL_AcquireGPUCommandBuffer(gpu_context.device);
 	if (cmd_buf == nullptr)
@@ -195,7 +202,9 @@ proc_tod::pass_result tod::proc_tod::submit_pass_render_triangle_to_window(data_
 	SDL_GPUTexture *swapchain_tex;
 	SDL_AcquireGPUSwapchainTexture(cmd_buf, gpu_context.window, &swapchain_tex, &w, &h);
 
-	create_pass_draw_triangle(*cmd_buf, tod_context, *swapchain_tex, clear_colour);
+	render_triange_instr mod_instr = instr;
+	mod_instr.camera_aspect = float(w) / float(h);
+	create_pass_draw_triangle(*cmd_buf, tod_context, *swapchain_tex, mod_instr);
 
 	SDL_SubmitGPUCommandBuffer(cmd_buf);
 
@@ -214,20 +223,43 @@ void proc_tod::create_pass_clear_cmd(SDL_GPUCommandBuffer &in_cmd, SDL_GPUTextur
 	SDL_EndGPURenderPass(renderPass);
 }
 
-void proc_tod::create_pass_draw_triangle(SDL_GPUCommandBuffer &cmd, data_tod_context &tod_context, SDL_GPUTexture &in_tex, SDL_FColor const &clear_colour) const
+void proc_tod::create_pass_draw_triangle(SDL_GPUCommandBuffer &cmd, data_tod_context &tod_context, SDL_GPUTexture &in_tex, render_triange_instr const &instr) const
 {
 	auto render_pass = SDL_BeginGPURenderPass(&cmd,
 	  sugar::make_array(
-		SDL_GPUColorTargetInfo{ .texture = &in_tex, .clear_color = clear_colour, .load_op = SDL_GPU_LOADOP_CLEAR }
+		SDL_GPUColorTargetInfo{
+		  .texture = &in_tex,
+		  .clear_color = instr.clear_colour,
+		  .load_op = SDL_GPU_LOADOP_CLEAR
+		}
 	  ).data(), 1, nullptr
 	);
+
 	SDL_BindGPUGraphicsPipeline(render_pass, tod_context.pipeline);
 	SDL_BindGPUVertexBuffers(render_pass, 0,
 	  sugar::make_array(
 	    SDL_GPUBufferBinding{ .buffer = tod_context.vert_buffer, .offset = 0 }
 	  ).data(), 1
 	);
+
+	data_shaders::unf_vert data_vert {
+	  .tr_object		  = sugar::eig_as_array(instr.transform_object),
+	  .tr_camera_and_proj = sugar::eig_as_array(sugar::keep(Eigen::Matrix4f{Eigen::Matrix4f::Identity()}))
+	};
+	data_vert.tr_camera_and_proj[5] *= instr.camera_aspect;
+	SDL_PushGPUVertexUniformData(&cmd, 0, &data_vert, sizeof(data_vert));
+
+	data_shaders::unf_frag data_frag {
+	  .colours = sugar::concat_to_array(
+		SDL_FColor{ 1.f, 0.f, 0.f, 1.f }, 
+		SDL_FColor{ 0.f, 1.f, 0.f, 1.f }, 
+		SDL_FColor{ 0.f, 0.f, 1.f, 1.f }
+	  )
+	};
+	SDL_PushGPUFragmentUniformData(&cmd, 0, &data_frag, sizeof(data_frag));
+
 	SDL_DrawGPUPrimitives(render_pass, 3, 1, 0, 0);
+
 	SDL_EndGPURenderPass(render_pass);
 }
 

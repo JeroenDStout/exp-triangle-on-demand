@@ -18,6 +18,7 @@ configure_project_console(tod_live)
 configure_cxx_target(tod_live)
 configure_target_outputs(tod_live)
 configure_project_sdl(tod_live)
+configure_project_eigen(tod_core)
 configure_publish_exec(tod_live)
 	
 add_dependencies(tod_live tod_core repo_version)

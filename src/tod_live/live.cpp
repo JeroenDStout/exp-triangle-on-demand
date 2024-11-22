@@ -3,6 +3,7 @@
 #include <iostream>
 #include <random>
 
+#include "tod_core/proc_tod_impl.h"
 #include "tod_core/inc_sdl.h"
 
 using namespace tod_live;
@@ -48,7 +49,9 @@ auto handler_tod_live::run() -> handler_result
 
     for (int i = 0; i < 10; ++i)
     {
-        proc_tod.submit_pass_render_triangle_to_window(gpu_context, tod_context, { dist(e2), dist(e2), dist(e2), 1.f });
+        proc_tod.submit_pass_render_triangle_to_window(gpu_context, tod_context, tod::proc_tod::render_triange_instr{
+          .clear_colour = { dist(e2), dist(e2), dist(e2), 1.f }
+        });
         SDL_Delay(300);
     }
 

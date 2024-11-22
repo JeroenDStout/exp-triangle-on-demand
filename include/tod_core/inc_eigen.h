@@ -8,6 +8,7 @@
 #  pragma warning(disable : 5267) // definition of implicit copy constructor is deprecated
 #  pragma warning(disable : 5027) // move assignment operator was implicitly defined as deleted
 #  pragma warning(disable : 5031) // #pragma warning(pop): likely mismatch, popping warning state pushed in different file
+#  pragma warning(disable : 5266) // 'const' qualifier on return type has no effect
 #endif
 
 #include <eigen/dense>

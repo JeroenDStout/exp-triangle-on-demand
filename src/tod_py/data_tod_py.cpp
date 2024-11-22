@@ -5,6 +5,7 @@
 #include "tod_core/proc_gpu.h"
 #include "tod_core/poli_gpu.h"
 #include "tod_core/proc_tod.h"
+#include "tod_core/proc_tod_impl.h"
 #include "tod_core/poli_tod.h"
 #include "tod_core/inc_sdl.h"
 
@@ -67,7 +68,10 @@ void nb_data_tod_py(nanobind::module_ &m)
 
     m.def("render_triangle", [](tod_py::data_tod_py& data, Eigen::Vector3f colour) { 
         tod::proc_tod t{};
-        t.submit_pass_render_triangle_to_texture(data.gpu_context, data.tod_context, *data.gpu_tex, SDL_FColor{colour.x(), colour.y(), colour.z(), 1.f});
+        t.submit_pass_render_triangle_to_texture(
+          data.gpu_context, data.tod_context, tod::proc_tod::render_triange_instr{
+            .clear_colour = SDL_FColor{ colour.x(), colour.y(), colour.z(), 1.f },
+          }, *data.gpu_tex);
     });
 
     m.def("get_image", [](tod_py::data_tod_py& data) {

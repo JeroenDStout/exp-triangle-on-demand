@@ -1,5 +1,7 @@
 #pragma once
 
+#include <array>
+
 /*
  *  ...
  */
@@ -20,5 +22,20 @@ namespace tod {
         SDL_GPUGraphicsPipeline *pipeline;
 
     };
+
+}
+
+namespace tod::data_shaders {
+
+    struct unf_vert {
+        std::array<float, 16> tr_object;
+        std::array<float, 16> tr_camera_and_proj;
+    };
+    static_assert(sizeof(unf_vert) == 32 * 4);
+
+    struct unf_frag {
+        std::array<float, 12> colours;
+    };
+    static_assert(sizeof(unf_frag) == 12 * 4);
 
 }
