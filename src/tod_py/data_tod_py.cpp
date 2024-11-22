@@ -27,6 +27,8 @@ void nb_data_tod_py(nanobind::module_ &m)
 
     m.def("create_tod_context", [](){
         std::unique_ptr<tod_py::data_tod_py> data = std::make_unique<tod_py::data_tod_py>();
+        data->gpu_tex_w = 640;
+        data->gpu_tex_h = 640;
         
         tod::proc_gpu proc_gpu{};
         proc_gpu.create_gpu_context(data->gpu_context, { .create_window = false });
@@ -38,8 +40,8 @@ void nb_data_tod_py(nanobind::module_ &m)
 		  .type                 = SDL_GPU_TEXTURETYPE_2D,
 		  .format               = SDL_GPU_TEXTUREFORMAT_R8G8B8A8_UNORM,
 		  .usage                = SDL_GPU_TEXTUREUSAGE_SAMPLER | SDL_GPU_TEXTUREUSAGE_COLOR_TARGET,
-		  .width                = 640,
-		  .height               = 480,
+		  .width                = data->gpu_tex_w,
+		  .height               = data->gpu_tex_h,
 		  .layer_count_or_depth = 1,
 		  .num_levels           = 1,
           .sample_count         = SDL_GPU_SAMPLECOUNT_1
@@ -51,7 +53,7 @@ void nb_data_tod_py(nanobind::module_ &m)
             
         SDL_GPUTransferBufferCreateInfo gpu_transfer_buffer_info{
 	      .usage = SDL_GPU_TRANSFERBUFFERUSAGE_DOWNLOAD,
-		  .size  = 640 * 480 * 4
+		  .size  = data->gpu_tex_w * data->gpu_tex_h * 4
         };
         data->gpu_transfer_buffer = SDL_CreateGPUTransferBuffer(data->gpu_context.device, &gpu_transfer_buffer_info);
         if (!data->gpu_transfer_buffer) {
@@ -71,6 +73,7 @@ void nb_data_tod_py(nanobind::module_ &m)
         t.submit_pass_render_triangle_to_texture(
           data.gpu_context, data.tod_context, tod::proc_tod::render_triange_instr{
             .clear_colour = SDL_FColor{ colour.x(), colour.y(), colour.z(), 1.f },
+            .camera_aspect = float(data.gpu_tex_w) / float(data.gpu_tex_h),
           }, *data.gpu_tex);
     });
 
@@ -85,8 +88,8 @@ void nb_data_tod_py(nanobind::module_ &m)
 		  .texture   = data.gpu_tex,
           .mip_level = 0,
           .layer     = 0,
-		  .w         = 640,
-		  .h         = 480,
+		  .w         = data.gpu_tex_w,
+		  .h         = data.gpu_tex_h,
 		  .d         = 1
         };
 
@@ -103,14 +106,14 @@ void nb_data_tod_py(nanobind::module_ &m)
 	    std::byte* transfer_ptr = (std::byte*)SDL_MapGPUTransferBuffer(
 		    data.gpu_context.device, data.gpu_transfer_buffer, false
 	    );
-        std::byte* array_ptr = new std::byte[640 * 480 * 4];
+        std::byte* array_ptr = new std::byte[data.gpu_tex_w * data.gpu_tex_h * 4];
         nb::capsule owner(array_ptr, [](void *p) noexcept {
             delete[] (std::byte*)(p);
         });
-        std::memcpy(array_ptr, transfer_ptr, 640 * 480 * 4);
+        std::memcpy(array_ptr, transfer_ptr, data.gpu_tex_w * data.gpu_tex_h * 4);
 
 	    SDL_UnmapGPUTransferBuffer(data.gpu_context.device, data.gpu_transfer_buffer);
         
-        return nb::ndarray<nb::numpy, std::uint8_t>(array_ptr, { 480, 640, 4 }, owner);
+        return nb::ndarray<nb::numpy, std::uint8_t>(array_ptr, { data.gpu_tex_h, data.gpu_tex_w, 4 }, owner);
     });
 }

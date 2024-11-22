@@ -18,6 +18,8 @@ namespace tod_py {
         tod::data_tod_context tod_context;
 
         SDL_GPUTexture        *gpu_tex;
+        std::uint32_t         gpu_tex_w, gpu_tex_h;
+
         SDL_GPUTransferBuffer *gpu_transfer_buffer;
 
     };
