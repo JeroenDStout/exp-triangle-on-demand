@@ -25,7 +25,13 @@ setup_project_source(tod_core "core/proc"
     proc_tod.h
     proc_tod_impl.h
 )
-setup_project_source(tod_core "sugar"
+setup_project_source(tod_core "sweets/math"
+  include:
+    transform_eig.h
+  script:
+    eigen.natvis
+)
+setup_project_source(tod_core "sweets/sugar"
   include:
     io.h
     refvalue.h

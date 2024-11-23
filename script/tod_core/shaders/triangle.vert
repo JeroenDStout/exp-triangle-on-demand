@@ -2,7 +2,8 @@
 
 layout (set = 1, binding = 0) uniform unf_transform {
   mat4x4 tr_object;
-  mat4x4 tr_camera_transform;
+  mat4x4 tr_view;
+  mat4x4 tr_proj;
 };
 
 layout (location = 0) in vec3  in_position;
@@ -16,8 +17,9 @@ void main()
     
     vec4 out_pos = vec4(in_position, 1);
 
-    out_pos = tr_object           * out_pos;
-    out_pos = tr_camera_transform * out_pos;
+    out_pos = tr_object * out_pos;
+    out_pos = tr_view   * out_pos;
+    out_pos = tr_proj   * out_pos;
 
 	gl_Position = out_pos;
 }

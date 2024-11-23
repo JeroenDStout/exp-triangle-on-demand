@@ -9,6 +9,7 @@
 #include "tod_core/refvalue.h"
 #include "tod_core/sweet_eigen.h"
 #include "tod_core/sweet_sdl.h"
+#include "tod_core/transform_eig.h"
 
 #include "tod_core/data_gpu.h"
 #include "tod_core/data_vert.h"
@@ -80,9 +81,9 @@ bool tod::proc_tod::create_tod_context(data_tod_context &out_tod_context, data_g
 	  tod::vert::pos_col_size * 3,
 	  [&proc_gpu, &out_tod_context](tod::proc_gpu::data_gpu_upload_pass_context& context) {
 		proc_gpu.add_count_to_gpu_upload_pass<tod::vert::pos_col>(context, 3, *out_tod_context.vert_buffer, 0, [](tod::vert::pos_col* data) {
-	      data[0] = {                   0.f,  0.75f, 0.f, 0xFF, 0x00, 0x00, 0xFF };
-	      data[1] = {  std::sqrt(3.f) / 2.f, -0.75f, 0.f, 0x00, 0xFF, 0x00, 0xFF };
-	      data[2] = { -std::sqrt(3.f) / 2.f, -0.75f, 0.f, 0x00, 0x00, 0xFF, 0xFF };
+	      data[0] = {                   0.f, 0.f,  0.75f, 0xFF, 0x00, 0x00, 0xFF };
+	      data[1] = {  std::sqrt(3.f) / 2.f, 0.f, -0.75f, 0x00, 0xFF, 0x00, 0xFF };
+	      data[2] = { -std::sqrt(3.f) / 2.f, 0.f, -0.75f, 0x00, 0x00, 0xFF, 0xFF };
 		});
 	});
 
@@ -203,7 +204,7 @@ proc_tod::pass_result tod::proc_tod::submit_pass_render_triangle_to_window(data_
 	SDL_AcquireGPUSwapchainTexture(cmd_buf, gpu_context.window, &swapchain_tex, &w, &h);
 
 	render_triange_instr mod_instr = instr;
-	mod_instr.camera_aspect = float(w) / float(h);
+	mod_instr.camera.aspect = float(w) / float(h);
 	create_pass_draw_triangle(*cmd_buf, tod_context, *swapchain_tex, mod_instr);
 
 	SDL_SubmitGPUCommandBuffer(cmd_buf);
@@ -242,11 +243,25 @@ void proc_tod::create_pass_draw_triangle(SDL_GPUCommandBuffer &cmd, data_tod_con
 	  ).data(), 1
 	);
 
+	Eigen::Matrix4f tr_object{};
+	tr_object.block<3, 3>(0, 0) = Eigen::AngleAxis(0.0f, Eigen::Vector3f::UnitZ()).matrix();
+	tr_object(3, 3) = 1.f;
+
+	Eigen::Matrix4f tr_view = Eigen::Matrix4f::Identity();
+	math::look_at(tr_view.topLeftCorner<3, 4>(),
+	  instr.camera.position,
+	  { 0.f,  0.f, 0.f },
+	  { 0.f,  0.f, 1.f }
+	);
+
+	Eigen::Matrix4f tr_proj = Eigen::Matrix4f::Identity();
+	math::perspective(tr_proj, instr.camera.fov_y, instr.camera.aspect, instr.camera.near, instr.camera.far);
+
 	data_shaders::unf_vert data_vert {
-	  .tr_object		  = sugar::eig_as_array(instr.transform_object),
-	  .tr_camera_and_proj = sugar::eig_as_array(sugar::keep(Eigen::Matrix4f{Eigen::Matrix4f::Identity()}))
+	  .tr_object = sugar::eig_as_array(tr_object),
+	  .tr_view	 = sugar::eig_as_array(tr_view),
+	  .tr_proj	 = sugar::eig_as_array(tr_proj)
 	};
-	data_vert.tr_camera_and_proj[5] *= instr.camera_aspect;
 	SDL_PushGPUVertexUniformData(&cmd, 0, &data_vert, sizeof(data_vert));
 
 	data_shaders::unf_frag data_frag {

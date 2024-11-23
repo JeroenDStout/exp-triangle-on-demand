@@ -73,7 +73,9 @@ void nb_data_tod_py(nanobind::module_ &m)
         t.submit_pass_render_triangle_to_texture(
           data.gpu_context, data.tod_context, tod::proc_tod::render_triange_instr{
             .clear_colour = SDL_FColor{ colour.x(), colour.y(), colour.z(), 1.f },
-            .camera_aspect = float(data.gpu_tex_w) / float(data.gpu_tex_h),
+            .camera = {
+              .aspect = float(data.gpu_tex_w) / float(data.gpu_tex_h)
+            }
           }, *data.gpu_tex);
     });
 
