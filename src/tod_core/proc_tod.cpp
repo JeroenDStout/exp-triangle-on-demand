@@ -244,7 +244,7 @@ void proc_tod::create_pass_draw_triangle(SDL_GPUCommandBuffer &cmd, data_tod_con
 	);
 
 	Eigen::Matrix4f tr_object{};
-	tr_object.block<3, 3>(0, 0) = Eigen::AngleAxis(0.0f, Eigen::Vector3f::UnitZ()).matrix();
+	tr_object.block<3, 3>(0, 0) = Eigen::AngleAxis(instr.triangle_spin, Eigen::Vector3f::UnitZ()).matrix();
 	tr_object(3, 3) = 1.f;
 
 	Eigen::Matrix4f tr_view = Eigen::Matrix4f::Identity();
@@ -255,7 +255,7 @@ void proc_tod::create_pass_draw_triangle(SDL_GPUCommandBuffer &cmd, data_tod_con
 	);
 
 	Eigen::Matrix4f tr_proj = Eigen::Matrix4f::Identity();
-	math::perspective(tr_proj, instr.camera.fov_y, instr.camera.aspect, instr.camera.near, instr.camera.far);
+	math::perspective(tr_proj, instr.camera.fov_y, instr.camera.aspect, 1.f, instr.camera.position.norm() * 2.f);
 
 	data_shaders::unf_vert data_vert {
 	  .tr_object = sugar::eig_as_array(tr_object),

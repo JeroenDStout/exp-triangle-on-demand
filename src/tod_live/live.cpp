@@ -47,12 +47,28 @@ auto handler_tod_live::run() -> handler_result
     std::mt19937 e2(rd());
     std::uniform_real_distribution<float> dist(0.f, 1.f);
 
-    for (int i = 0; i < 10; ++i)
-    {
+    SDL_FColor current_clear_colour{};
+    float      next_clear_colour_time = 0.f;
+    float      next_clear_colour_step = 1.f;
+
+    auto time_start = std::chrono::steady_clock::now();
+    for (;;) {
+        auto time = std::chrono::steady_clock::now();
+        auto time_passed = std::chrono::duration_cast<std::chrono::nanoseconds>(time - time_start).count() / 1e9f;
+        if (time_passed > 7.f)
+          break;
+        
+        if (time_passed >= next_clear_colour_time)
+        {
+            current_clear_colour = { dist(e2), dist(e2), dist(e2), 1.f };
+            next_clear_colour_time += next_clear_colour_step;
+            next_clear_colour_step *= 0.85f;
+        }
+        
         proc_tod.submit_pass_render_triangle_to_window(gpu_context, tod_context, tod::proc_tod::render_triange_instr{
-          .clear_colour = { dist(e2), dist(e2), dist(e2), 1.f }
+          .clear_colour  = current_clear_colour,
+          .triangle_spin = time_passed * time_passed * 2.f
         });
-        SDL_Delay(300);
     }
 
     return handler_result::success;
