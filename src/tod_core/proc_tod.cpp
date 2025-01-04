@@ -244,7 +244,8 @@ void proc_tod::create_pass_draw_triangle(SDL_GPUCommandBuffer &cmd, data_tod_con
 	);
 
 	Eigen::Matrix4f tr_object{};
-	tr_object.block<3, 3>(0, 0) = Eigen::AngleAxis(instr.triangle_spin, Eigen::Vector3f::UnitZ()).matrix();
+	tr_object.block<3, 3>(0, 0) = Eigen::AngleAxis(instr.triangle.spin, Eigen::Vector3f::UnitZ()).matrix();
+	tr_object.block<3, 3>(0, 0) *= instr.triangle.size;
 	tr_object(3, 3) = 1.f;
 
 	Eigen::Matrix4f tr_view = Eigen::Matrix4f::Identity();
@@ -265,11 +266,7 @@ void proc_tod::create_pass_draw_triangle(SDL_GPUCommandBuffer &cmd, data_tod_con
 	SDL_PushGPUVertexUniformData(&cmd, 0, &data_vert, sizeof(data_vert));
 
 	data_shaders::unf_frag data_frag {
-	  .colours = sugar::concat_to_array(
-		SDL_FColor{ 1.f, 0.f, 0.f, 1.f }, 
-		SDL_FColor{ 0.f, 1.f, 0.f, 1.f }, 
-		SDL_FColor{ 0.f, 0.f, 1.f, 1.f }
-	  )
+	  .colours = *(std::array<float, 12>*)(&instr.triangle.colours)
 	};
 	SDL_PushGPUFragmentUniformData(&cmd, 0, &data_frag, sizeof(data_frag));
 

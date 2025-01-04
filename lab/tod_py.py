@@ -6,6 +6,7 @@ from lab_helper import tod_py as tod
 
 import numpy as np
 from IPython.display import clear_output
+import matplotlib
 import matplotlib.pyplot as plt
 import ipywidgets as widgets
 from ipywidgets import interact, interact_manual
@@ -31,8 +32,12 @@ im = plt.imshow([[0]], animated=False)
 def render_triangle(size=1.0, spin=0.0, background_colour='#afafaf',
                     colour_1='#ff0000', colour_2='#00ff00', colour_3='#0000ff'):
   triangle_instr = tod.render_triange_instr()
-  triangle_instr.triangle_spin = spin
-  triangle_instr.clear_colo
+  triangle_instr.clear_colour      = matplotlib.colors.to_rgba(background_colour)
+  triangle_instr.triangle_size     = size
+  triangle_instr.triangle_spin     = spin
+  triangle_instr.triangle_colour_1 = matplotlib.colors.to_rgba(colour_1)
+  triangle_instr.triangle_colour_2 = matplotlib.colors.to_rgba(colour_2)
+  triangle_instr.triangle_colour_3 = matplotlib.colors.to_rgba(colour_3)
   tod.render_triangle(context, triangle_instr)
   image = tod.get_image(context)
   im.set_array(image)
@@ -40,7 +45,7 @@ def render_triangle(size=1.0, spin=0.0, background_colour='#afafaf',
 
 interact(
   render_triangle,
-  size              = widgets.FloatSlider(min = 0, max = 10, value = 1),
+  size              = widgets.FloatSlider(min = 0, max = 2, value = 1),
   spin              = widgets.FloatSlider(min = -3.1416, max = 3.1416, value = 0),
   background_colour = widgets.ColorPicker(value='#afafaf'),
   colour_1          = widgets.ColorPicker(value='#ff0000'),

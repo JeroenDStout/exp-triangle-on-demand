@@ -67,7 +67,9 @@ auto handler_tod_live::run() -> handler_result
         
         proc_tod.submit_pass_render_triangle_to_window(gpu_context, tod_context, tod::proc_tod::render_triange_instr{
           .clear_colour  = current_clear_colour,
-          .triangle_spin = time_passed * time_passed * 2.f
+          .triangle = {
+            .spin = time_passed * time_passed * 2.f
+          }
         });
     }
 
