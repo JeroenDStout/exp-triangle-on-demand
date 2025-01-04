@@ -7,6 +7,8 @@ from lab_helper import tod_py as tod
 import numpy as np
 from IPython.display import clear_output
 import matplotlib.pyplot as plt
+import ipywidgets as widgets
+from ipywidgets import interact, interact_manual
 
 # +
 context = tod.create_tod_context()
@@ -23,31 +25,25 @@ if False:
   plt.show()
 
 # +
-import matplotlib.animation as animation
-import functools
-
-tod.clear(context, np.array([ 0, 0, 1 ]))
-image = tod.get_image(context)
-
-reps += 1
-def animate_func(i, my_im, if_rep):
-    global reps
-    
-    if if_rep != reps:
-        return None
-    
-    if i % 10 == 0:
-        clear_output()
-        display('#' + str(i))
-    
-    tod.render_triangle(context, np.array([ 0.5, i / 50, 1 ]))
-    image = tod.get_image(context)
-    my_im.set_array(image)
-    return [ my_im ]
-
 fig = plt.figure()
-im = plt.imshow(image, animated=True)
+im = plt.imshow(image, animated=False)
 
-anim = animation.FuncAnimation(fig, functools.partial(animate_func, my_im=im, if_rep=reps), frames=100, interval=10, blit=True, repeat=True)
-# -
+def render_triangle(size=1.0, spin=0.0, background_colour='#afafaf',
+                    colour_1='#ff0000', colour_2='#00ff00', colour_3='#0000ff'):
+  triangle_instr = tod.render_triange_instr()
+  tod.render_triangle(context, triangle_instr)
+  image = tod.get_image(context)
+  im.set_array(image)
+  pass
 
+interact(
+  render_triangle,
+  size              = widgets.FloatSlider(min = 0, max = 10, value = 1),
+  spin              = widgets.FloatSlider(min = -3.1416, max = 3.1416, value = 0),
+  background_colour = widgets.ColorPicker(value='#afafaf'),
+  colour_1          = widgets.ColorPicker(value='#ff0000'),
+  colour_2          = widgets.ColorPicker(value='#00ff00'),
+  colour_3          = widgets.ColorPicker(value='#0000ff')
+)
+
+set_triangle_props()

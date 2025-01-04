@@ -68,15 +68,11 @@ void nb_data_tod_py(nanobind::module_ &m)
         t.submit_pass_clear_texture(data.gpu_context, *data.gpu_tex, SDL_FColor{colour.x(), colour.y(), colour.z(), 1.f});
     });
 
-    m.def("render_triangle", [](tod_py::data_tod_py& data, Eigen::Vector3f colour) { 
+    m.def("render_triangle", [](tod_py::data_tod_py& data, const tod::proc_tod::render_triange_instr& instr) { 
         tod::proc_tod t{};
         t.submit_pass_render_triangle_to_texture(
-          data.gpu_context, data.tod_context, tod::proc_tod::render_triange_instr{
-            .clear_colour = SDL_FColor{ colour.x(), colour.y(), colour.z(), 1.f },
-            .camera = {
-              .aspect = float(data.gpu_tex_w) / float(data.gpu_tex_h)
-            }
-          }, *data.gpu_tex);
+          data.gpu_context, data.tod_context, instr, *data.gpu_tex
+        );
     });
 
     m.def("get_image", [](tod_py::data_tod_py& data) {
