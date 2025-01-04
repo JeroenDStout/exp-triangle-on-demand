@@ -5,6 +5,7 @@
 #  pragma warning(disable : 4365) // signed/unsigned mismatch
 #endif
 
+#include <nanobind/stl/array.h>
 #include <nanobind/stl/string.h>
 #include <nanobind/stl/unique_ptr.h>
 
