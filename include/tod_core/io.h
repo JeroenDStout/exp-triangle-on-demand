@@ -5,6 +5,7 @@
 
 namespace tod::sugar {
 
+    // Wholesale load a binary file at file_path to a buffer with zero termination
     bool slurp_bin(std::string& out, std::string const& file_path)
     {
         try {

@@ -66,8 +66,10 @@ auto tod::proc_gpu::add_count_to_gpu_upload_pass(data_gpu_upload_pass_context &c
 
 	sdl_size_t addition_size = sizeof(data_t) * count;
 
+	// Let the caller fill data in our buffer
 	lambda_fill_data((data_t*)(context.data + context.byte_offset));
 
+	// Add the upload to the pass
 	SDL_UploadToGPUBuffer(
 	  context.copy_pass,
 	  &ts::keep(SDL_GPUTransferBufferLocation{
