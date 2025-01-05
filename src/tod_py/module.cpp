@@ -1,5 +1,3 @@
-#include "tod_py/data_tod_py.h"
-
 #include <iostream>
 
 #include "tod_core/proc_gpu.h"
@@ -9,24 +7,16 @@
 #include "tod_core/poli_tod.h"
 #include "tod_core/inc_sdl.h"
 
+#include "tod_py/tod_context.h"
+
 #include "tod_py/inc_nanobind.h"
 #include "tod_py/inc_nanobind_stl.h"
 namespace nb = nanobind;
 
-void nb_data_tod_py(nanobind::module_ &m)
+void nb_module(nanobind::module_ &m)
 {
-    nb::class_<tod_py::data_tod_py>(m, "tod_context")
-      .def("get_device_info", [](tod_py::data_tod_py& data) -> std::string {
-        if (!data.gpu_context.device)
-          return "No device";
-
-        tod::proc_gpu p{};
-        return p.create_debug_string(data.gpu_context);
-      })
-    ;
-
     m.def("create_tod_context", [](){
-        std::unique_ptr<tod_py::data_tod_py> data = std::make_unique<tod_py::data_tod_py>();
+        std::unique_ptr<tod_py::tod_context> data = std::make_unique<tod_py::tod_context>();
         data->gpu_tex_w = 640;
         data->gpu_tex_h = 640;
         
@@ -63,19 +53,19 @@ void nb_data_tod_py(nanobind::module_ &m)
         return data;
     });
 
-    m.def("clear", [](tod_py::data_tod_py& data, Eigen::Vector3f colour) { 
+    m.def("clear", [](tod_py::tod_context& data, Eigen::Vector3f colour) { 
         tod::proc_tod t{};
         t.submit_pass_clear_texture(data.gpu_context, *data.gpu_tex, SDL_FColor{colour.x(), colour.y(), colour.z(), 1.f});
     });
 
-    m.def("render_triangle", [](tod_py::data_tod_py& data, const tod::proc_tod::render_triange_instr& instr) { 
+    m.def("render_triangle", [](tod_py::tod_context& data, const tod::proc_tod::render_triange_instr& instr) { 
         tod::proc_tod t{};
         t.submit_pass_render_triangle_to_texture(
           data.gpu_context, data.tod_context, instr, *data.gpu_tex
         );
     });
 
-    m.def("get_image", [](tod_py::data_tod_py& data) {
+    m.def("get_image", [](tod_py::tod_context& data) {
         SDL_GPUCommandBuffer *cmd_buf = SDL_AcquireGPUCommandBuffer(data.gpu_context.device);
         
         SDL_GPUTextureTransferInfo transfer_info{

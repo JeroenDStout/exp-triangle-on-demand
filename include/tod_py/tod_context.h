@@ -12,7 +12,7 @@ struct SDL_GPUTransferBuffer;
 
 namespace tod_py {
 
-    struct data_tod_py {
+    struct tod_context {
         
         tod::data_gpu_context gpu_context;
         tod::data_tod_context tod_context;

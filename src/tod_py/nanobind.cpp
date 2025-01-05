@@ -5,6 +5,7 @@
 #include "tod_core/poli_tod.h"
 
 void nb_repo_version(nanobind::module_&);
+void nb_module(nanobind::module_ &m);
 void nb_data_tod_py(nanobind::module_ &m);
 void nb_proc_tod_py(nanobind::module_ &m);
 
@@ -18,6 +19,7 @@ NB_MODULE(tod_py, m)
         proc.init_tod(poli);
     });
 
+    nb_module(m);
     nb_repo_version(m);
     nb_data_tod_py(m);
     nb_proc_tod_py(m);

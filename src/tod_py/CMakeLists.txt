@@ -11,11 +11,14 @@ setup_project_source(tod_py "nanobind"
 )
 setup_project_source(tod_py "core"
   src:
-    data_tod_py.cpp
     proc_tod_py.cpp
+)
+setup_project_source(tod_py "module"
+  src:
+    module.cpp
+    tod_context.cpp
   include:
-    data_tod_py.h
-    proc_tod_py.h
+    tod_context.h
 )
 setup_project_source(tod_py "third_party"
   include:
